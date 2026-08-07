@@ -1,0 +1,15 @@
+{
+  "short_name": "Pro AI",
+  "name": "Pro AI Assistant",
+  "icons": [
+    {
+      "src": "https://raw.githubusercontent.com/rajputyt879-creator/Pro-AI-/main/pro_ai_neon_icon.png",
+      "sizes": "192x192 512x512",
+      "type": "image/png"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#0e1117",
+  "theme_color": "#0e1117",
+  "display": "standalone"
+}
