@@ -2,22 +2,22 @@ import os
 import streamlit as st
 from groq import Groq
 
-# 1. Streamlit Page Configuration
+# 1. Custom Neon PAi Icon set for Browser Tab
+ICON_URL = "https://raw.githubusercontent.com/rajputyt879-creator/Pro-AI-/main/pro_ai_neon_icon.png"
+
 st.set_page_config(
     page_title="Pro AI",
-    page_icon="⚡",
+    page_icon=ICON_URL,  # Isse red crown icon hat kar neon icon aayega
     layout="centered",
 )
 
-# 2. Inject Manifest & Custom Neon Icon HTML Links
+# 2. Inject PWA Manifest Links
 st.markdown(
-    """
+    f"""
     <head>
         <link rel="manifest" href="https://raw.githubusercontent.com/rajputyt879-creator/Pro-AI-/main/manifest.json">
-        <link rel="apple-touch-icon" sizes="180x180" href="https://raw.githubusercontent.com/rajputyt879-creator/Pro-AI-/main/pro_ai_neon_icon.png">
-        <link rel="icon" type="image/png" sizes="32x32" href="https://raw.githubusercontent.com/rajputyt879-creator/Pro-AI-/main/pro_ai_neon_icon.png">
-        <meta name="apple-mobile-web-app-title" content="Pro AI">
-        <meta name="application-name" content="Pro AI">
+        <link rel="apple-touch-icon" sizes="180x180" href="{ICON_URL}">
+        <link rel="icon" type="image/png" sizes="32x32" href="{ICON_URL}">
     </head>
     """,
     unsafe_allow_html=True,
