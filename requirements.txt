@@ -1,6 +1,5 @@
 streamlit
-groq
+google-generativeai
 requests
 pillow
 gTTS
-duckduckgo-search
