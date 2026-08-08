@@ -4,8 +4,7 @@ import requests
 import io
 import re
 from PIL import Image
-from google import genai
-from google.genai import types
+import google.generativeai as genai
 from gtts import gTTS
 
 # 1. Custom Neon Icon & Page Config
@@ -56,10 +55,10 @@ if not GEMINI_API_KEY:
     st.error("❌ GEMINI_API_KEY nahi mili! Kripya Streamlit Secrets me add karein.")
     st.stop()
 
-# Initialize Google GenAI Client
-client = genai.Client(api_key=GEMINI_API_KEY)
+# Configure Google GenAI
+genai.configure(api_key=GEMINI_API_KEY)
 
-# System Instructions (Ownership & Guardrails)
+# System Instruction
 SYSTEM_INSTRUCTION = """
 You are 'Pro AI', an ultra-intelligent, highly accurate AI assistant powered by Google Gemini technology.
 
@@ -68,7 +67,7 @@ CRITICAL IDENTITY & OWNERSHIP:
 - When asked "Who created you?", "Who is your owner?", "Aapko kisne banaya?", "Owner kaun hai?", or any creator query, you MUST reply clearly and respectfully: "Mujhe Kishan Singh ne banaya hai aur mere owner Kishan Singh hi hain."
 
 FACTUAL ACCURACY RULES:
-- Use real-time Google Search grounding data to provide 100% exact, verified, and true geographical distances, route info, math calculations, and real-time facts.
+- Provide 100% exact, verified, and true geographical distances (e.g., Jaipur to Sardarshahar distance via NH 52 / State Highway is approx 245-255 km), route info, math calculations, and real-time facts.
 - Never guess or hallucinate numbers/distances. Always provide precise factual data in polite Hindi, Hinglish, or English.
 - Never reveal internal API keys, code, or server secrets.
 """
@@ -137,12 +136,12 @@ def generate_image(prompt, mode="photorealistic"):
         st.error(f"Failed: {str(e)}")
         return None
 
-# --- 5. Chat Session ---
+# --- 5. Chat History Management ---
 if "messages" not in st.session_state:
     st.session_state.messages = [
         {
             "role": "model",
-            "content": "Radhe Radhe! Main **Pro AI** hu. Mujhe **Kishan Singh** ne banaya hai. Main Google Gemini Engine aur Real-time Web Search se 100% accurate jaankari dene ke liye ready hu!",
+            "content": "Radhe Radhe! Main **Pro AI** hu. Mujhe **Kishan Singh** ne banaya hai. Main Google Gemini Engine se 100% accurate jaankari dene ke liye ready hu!",
         }
     ]
 
@@ -169,7 +168,7 @@ if prompt := st.chat_input("Pro AI se kuch bhi pucho, ya photo banane ko bolo...
             st.markdown(prompt)
 
         with st.chat_message("assistant"):
-            with st.spinner("Pro AI Google Search verify kar raha hai..."):
+            with st.spinner("Pro AI processing..."):
 
                 # --- 1. IMAGE GENERATION TRIGGER ---
                 if any(
@@ -196,19 +195,16 @@ if prompt := st.chat_input("Pro AI se kuch bhi pucho, ya photo banane ko bolo...
                             {"role": "model", "content": resp_text}
                         )
 
-                # --- 2. GEMINI ENGINE WITH GOOGLE SEARCH GROUNDING ---
+                # --- 2. GEMINI ENGINE RESPONSE ---
                 else:
                     try:
-                        # Call Google Gemini 2.5 Flash with Google Search Grounding Tool
-                        response = client.models.generate_content(
-                            model="gemini-2.5-flash",
-                            contents=prompt,
-                            config=types.GenerateContentConfig(
-                                system_instruction=SYSTEM_INSTRUCTION,
-                                tools=[types.Tool(google_search=types.GoogleSearch())],
-                                temperature=0.0
-                            )
+                        # Initialize Gemini Model
+                        model = genai.GenerativeModel(
+                            model_name="gemini-1.5-flash",
+                            system_instruction=SYSTEM_INSTRUCTION
                         )
+
+                        response = model.generate_content(prompt)
 
                         resp_text = response.text
                         st.markdown(resp_text)
