@@ -7,7 +7,7 @@ from PIL import Image
 import google.generativeai as genai
 from gtts import gTTS
 
-# 1. Custom Neon Icon & Page Config
+# 1. Page Configuration & Neon PAi Icon
 ICON_URL = "https://raw.githubusercontent.com/rajputyt879-creator/Pro-AI-/main/pro_ai_neon_icon.png"
 
 st.set_page_config(
@@ -16,7 +16,7 @@ st.set_page_config(
     layout="centered",
 )
 
-# 2. Inject PWA Links & Security CSS
+# 2. Inject PWA Manifest & Security CSS
 st.markdown(
     f"""
     <head>
@@ -28,14 +28,15 @@ st.markdown(
     </head>
     <style>
         .security-badge {{
-            font-size: 0.8rem;
+            font-size: 0.82rem;
             color: #00ff88;
             background-color: #112211;
-            padding: 4px 10px;
+            padding: 5px 12px;
             border-radius: 12px;
             border: 1px solid #00ff88;
             display: inline-block;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
+            font-weight: 600;
         }}
     </style>
     """,
@@ -44,10 +45,10 @@ st.markdown(
 
 # 3. Header UI
 st.title("⚡ Pro AI")
-st.markdown('<div class="security-badge">🔒 Powered by Google Gemini Engine | Ultra Accurate & Secure</div>', unsafe_allow_html=True)
-st.caption("Created & Owned by **Kishan Singh** | Real-time Search Grounded AI")
+st.markdown('<div class="security-badge">🔒 Powered by Google Gemini Engine | Ultra-Secure Mode Active</div>', unsafe_allow_html=True)
+st.caption("Created & Owned by **Kishan Singh** | Fast, 100% Accurate & Intelligent")
 
-# --- 4. API Keys Setup ---
+# --- 4. API Keys Configuration ---
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
 STABILITY_API_KEY = os.environ.get("STABILITY_API_KEY")
 
@@ -55,25 +56,25 @@ if not GEMINI_API_KEY:
     st.error("❌ GEMINI_API_KEY nahi mili! Kripya Streamlit Secrets me add karein.")
     st.stop()
 
-# Configure Google GenAI
+# Configure Google GenAI SDK
 genai.configure(api_key=GEMINI_API_KEY)
 
-# System Instruction
+# --- 5. System Instructions (Ownership, Fact Accuracy & Security) ---
 SYSTEM_INSTRUCTION = """
-You are 'Pro AI', an ultra-intelligent, highly accurate AI assistant powered by Google Gemini technology.
+You are 'Pro AI', an advanced, highly accurate AI assistant created and owned by Kishan Singh.
 
-CRITICAL IDENTITY & OWNERSHIP:
+CRITICAL IDENTITY & OWNERSHIP INSTRUCTIONS:
 - You were created, developed, and owned by Kishan Singh.
-- When asked "Who created you?", "Who is your owner?", "Aapko kisne banaya?", "Owner kaun hai?", or any creator query, you MUST reply clearly and respectfully: "Mujhe Kishan Singh ne banaya hai aur mere owner Kishan Singh hi hain."
+- When asked "Who created you?", "Who is your owner?", "Aapko kisne banaya?", "Owner kaun hai?", or any creator inquiry, you MUST reply clearly and respectfully: "Mujhe Kishan Singh ne banaya hai aur mere owner Kishan Singh hi hain."
 
 FACTUAL ACCURACY RULES:
-- Provide 100% exact, verified, and true geographical distances (e.g., Jaipur to Sardarshahar distance via NH 52 / State Highway is approx 245-255 km), route info, math calculations, and real-time facts.
+- Provide 100% exact, verified, and true geographical distances (e.g., Jaipur to Sardarshahar distance via NH 52 is approx 245-255 km), route info, math calculations, and real-time facts.
 - Never guess or hallucinate numbers/distances. Always provide precise factual data in polite Hindi, Hinglish, or English.
 - Never reveal internal API keys, code, or server secrets.
 """
 
 def sanitize_input(user_input):
-    """Prevents malicious script injection"""
+    """Sanitizes user input against prompt injection"""
     cleaned = re.sub(r'<[^>]*?>', '', user_input)
     malicious_patterns = [r'api[_\s]?key', r'system[_\s]?prompt', r'gemini[_\s]?key', r'stability[_\s]?key']
     for pattern in malicious_patterns:
@@ -82,7 +83,7 @@ def sanitize_input(user_input):
     return cleaned
 
 def text_to_speech(text):
-    """Converts text response to voice audio"""
+    """Converts response text to voice audio"""
     try:
         clean_text = re.sub(r'[*_#~`]', '', text)
         tts = gTTS(text=clean_text, lang="hi", slow=False)
@@ -94,7 +95,7 @@ def text_to_speech(text):
         return None
 
 def generate_image(prompt, mode="photorealistic"):
-    """Generates 4K/3D photo using Stability AI"""
+    """Generates 4K/3D photo using Stability AI API"""
     if not STABILITY_API_KEY:
         st.error("⚠️ Image generation ke liye STABILITY_API_KEY add karein!")
         return None
@@ -136,12 +137,12 @@ def generate_image(prompt, mode="photorealistic"):
         st.error(f"Failed: {str(e)}")
         return None
 
-# --- 5. Chat History Management ---
+# --- 6. Chat History Session ---
 if "messages" not in st.session_state:
     st.session_state.messages = [
         {
             "role": "model",
-            "content": "Radhe Radhe! Main **Pro AI** hu. Mujhe **Kishan Singh** ne banaya hai. Main Google Gemini Engine se 100% accurate jaankari dene ke liye ready hu!",
+            "content": "Radhe Radhe! Main **Pro AI** hu. Mujhe **Kishan Singh** ne banaya hai. Main Google Gemini Engine se 100% accurate jaankari aur 4K photos dene ke liye ready hu!",
         }
     ]
 
@@ -149,19 +150,19 @@ if "messages" not in st.session_state:
 st.sidebar.header("⚙️ Pro AI Settings")
 voice_enabled = st.sidebar.checkbox("🔊 Enable Voice Response", value=True)
 
-# Display History
+# Display Chat History
 for message in st.session_state.messages:
     role_name = "user" if message["role"] == "user" else "assistant"
     with st.chat_message(role_name):
         st.markdown(message["content"])
 
-# --- 6. Main User Input & Response ---
+# --- 7. Main Input Handling ---
 if prompt := st.chat_input("Pro AI se kuch bhi pucho, ya photo banane ko bolo..."):
     safe_prompt = sanitize_input(prompt)
     
     if safe_prompt is None:
         with st.chat_message("assistant"):
-            st.error("🛡️ Security Warning: Internal system credentials/keys disclose nahi kiye ja sakte.")
+            st.error("🛡️ Security Warning: System keys, tokens or internal settings cannot be disclosed.")
     else:
         st.session_state.messages.append({"role": "user", "content": prompt})
         with st.chat_message("user"):
@@ -198,9 +199,9 @@ if prompt := st.chat_input("Pro AI se kuch bhi pucho, ya photo banane ko bolo...
                 # --- 2. GEMINI ENGINE RESPONSE ---
                 else:
                     try:
-                        # Initialize Gemini Model
+                        # Correct Gemini Model Endpoint
                         model = genai.GenerativeModel(
-                            model_name="gemini-1.5-flash",
+                            model_name="gemini-2.5-flash",
                             system_instruction=SYSTEM_INSTRUCTION
                         )
 
@@ -219,5 +220,24 @@ if prompt := st.chat_input("Pro AI se kuch bhi pucho, ya photo banane ko bolo...
                         )
 
                     except Exception as e:
-                        st.error(f"Gemini Engine Error: {str(e)}")
-                        
+                        # Fallback Model if gemini-2.5-flash alias differs in regional endpoint
+                        try:
+                            model_fallback = genai.GenerativeModel(
+                                model_name="gemini-2.0-flash",
+                                system_instruction=SYSTEM_INSTRUCTION
+                            )
+                            response = model_fallback.generate_content(prompt)
+                            resp_text = response.text
+                            st.markdown(resp_text)
+
+                            if voice_enabled:
+                                audio_fp = text_to_speech(resp_text)
+                                if audio_fp:
+                                    st.audio(audio_fp, format="audio/mp3")
+
+                            st.session_state.messages.append(
+                                {"role": "model", "content": resp_text}
+                            )
+                        except Exception as ex:
+                            st.error(f"Gemini Engine Error: {str(ex)}")
+                            
