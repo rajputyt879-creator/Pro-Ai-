@@ -3,3 +3,4 @@ groq
 requests
 pillow
 gTTS
+duckduckgo-search
