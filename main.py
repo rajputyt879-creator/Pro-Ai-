@@ -5,9 +5,10 @@ import io
 import re
 from PIL import Image
 import google.generativeai as genai
+from groq import Groq
 from gtts import gTTS
 
-# 1. Page Configuration & Neon PAi Icon
+# 1. Page Configuration & Icon
 ICON_URL = "https://raw.githubusercontent.com/rajputyt879-creator/Pro-AI-/main/pro_ai_neon_icon.png"
 
 st.set_page_config(
@@ -23,8 +24,6 @@ st.markdown(
         <link rel="manifest" href="https://raw.githubusercontent.com/rajputyt879-creator/Pro-AI-/main/manifest.json">
         <link rel="apple-touch-icon" sizes="180x180" href="{ICON_URL}">
         <link rel="icon" type="image/png" sizes="32x32" href="{ICON_URL}">
-        <meta name="apple-mobile-web-app-title" content="Pro AI">
-        <meta name="application-name" content="Pro AI">
     </head>
     <style>
         .security-badge {{
@@ -45,21 +44,20 @@ st.markdown(
 
 # 3. Header UI
 st.title("⚡ Pro AI")
-st.markdown('<div class="security-badge">🔒 Powered by Google Gemini Engine | Ultra-Secure Mode Active</div>', unsafe_allow_html=True)
+st.markdown('<div class="security-badge">🔒 Ultra-Secure & High-Availability Engine Active</div>', unsafe_allow_html=True)
 st.caption("Created & Owned by **Kishan Singh** | Fast, 100% Accurate & Intelligent")
 
-# --- 4. API Keys Configuration ---
+# --- 4. API Keys Setup ---
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
+GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
 STABILITY_API_KEY = os.environ.get("STABILITY_API_KEY")
 
-if not GEMINI_API_KEY:
-    st.error("❌ GEMINI_API_KEY nahi mili! Kripya Streamlit Secrets me add karein.")
-    st.stop()
+if GEMINI_API_KEY:
+    genai.configure(api_key=GEMINI_API_KEY)
 
-# Configure Google GenAI SDK
-genai.configure(api_key=GEMINI_API_KEY)
+client_groq = Groq(api_key=GROQ_API_KEY) if GROQ_API_KEY else None
 
-# --- 5. System Instructions (Ownership, Fact Accuracy & Security) ---
+# System Instructions
 SYSTEM_INSTRUCTION = """
 You are 'Pro AI', an advanced, highly accurate AI assistant created and owned by Kishan Singh.
 
@@ -74,7 +72,7 @@ FACTUAL ACCURACY RULES:
 """
 
 def sanitize_input(user_input):
-    """Sanitizes user input against prompt injection"""
+    """Sanitizes user input"""
     cleaned = re.sub(r'<[^>]*?>', '', user_input)
     malicious_patterns = [r'api[_\s]?key', r'system[_\s]?prompt', r'gemini[_\s]?key', r'stability[_\s]?key']
     for pattern in malicious_patterns:
@@ -95,7 +93,7 @@ def text_to_speech(text):
         return None
 
 def generate_image(prompt, mode="photorealistic"):
-    """Generates 4K/3D photo using Stability AI API"""
+    """Generates 4K/3D photo using Stability AI"""
     if not STABILITY_API_KEY:
         st.error("⚠️ Image generation ke liye STABILITY_API_KEY add karein!")
         return None
@@ -137,12 +135,12 @@ def generate_image(prompt, mode="photorealistic"):
         st.error(f"Failed: {str(e)}")
         return None
 
-# --- 6. Chat History Session ---
+# --- 5. Chat Session ---
 if "messages" not in st.session_state:
     st.session_state.messages = [
         {
             "role": "model",
-            "content": "Radhe Radhe! Main **Pro AI** hu. Mujhe **Kishan Singh** ne banaya hai. Main Google Gemini Engine se 100% accurate jaankari aur 4K photos dene ke liye ready hu!",
+            "content": "Radhe Radhe! Main **Pro AI** hu. Mujhe **Kishan Singh** ne banaya hai. Main 100% accurate jaankari aur 4K photos dene ke liye ready hu!",
         }
     ]
 
@@ -150,19 +148,19 @@ if "messages" not in st.session_state:
 st.sidebar.header("⚙️ Pro AI Settings")
 voice_enabled = st.sidebar.checkbox("🔊 Enable Voice Response", value=True)
 
-# Display Chat History
+# Display History
 for message in st.session_state.messages:
     role_name = "user" if message["role"] == "user" else "assistant"
     with st.chat_message(role_name):
         st.markdown(message["content"])
 
-# --- 7. Main Input Handling ---
+# --- 6. Input & High Availability Processing ---
 if prompt := st.chat_input("Pro AI se kuch bhi pucho, ya photo banane ko bolo..."):
     safe_prompt = sanitize_input(prompt)
     
     if safe_prompt is None:
         with st.chat_message("assistant"):
-            st.error("🛡️ Security Warning: System keys, tokens or internal settings cannot be disclosed.")
+            st.error("🛡️ Security Warning: Internal system credentials/keys disclose nahi kiye ja sakte.")
     else:
         st.session_state.messages.append({"role": "user", "content": prompt})
         with st.chat_message("user"):
@@ -196,18 +194,41 @@ if prompt := st.chat_input("Pro AI se kuch bhi pucho, ya photo banane ko bolo...
                             {"role": "model", "content": resp_text}
                         )
 
-                # --- 2. GEMINI ENGINE RESPONSE ---
+                # --- 2. DUAL-ENGINE HYBRID CHAT (GEMINI + GROQ FALLBACK) ---
                 else:
-                    try:
-                        # Correct Gemini Model Endpoint
-                        model = genai.GenerativeModel(
-                            model_name="gemini-2.5-flash",
-                            system_instruction=SYSTEM_INSTRUCTION
-                        )
+                    resp_text = None
+                    
+                    # Try Primary Gemini Engine
+                    if GEMINI_API_KEY:
+                        try:
+                            model = genai.GenerativeModel(
+                                model_name="gemini-1.5-flash-latest",
+                                system_instruction=SYSTEM_INSTRUCTION
+                            )
+                            response = model.generate_content(prompt)
+                            resp_text = response.text
+                        except Exception:
+                            resp_text = None  # Fallback to Groq seamlessly
 
-                        response = model.generate_content(prompt)
+                    # Fallback Engine (Groq Llama 3.3) if Gemini hits limit
+                    if not resp_text and client_groq:
+                        try:
+                            api_messages = [{"role": "system", "content": SYSTEM_INSTRUCTION}]
+                            for m in st.session_state.messages:
+                                api_messages.append({"role": "user" if m["role"] == "user" else "assistant", "content": m["content"]})
 
-                        resp_text = response.text
+                            chat_completion = client_groq.chat.completions.create(
+                                messages=api_messages,
+                                model="llama-3.3-70b-versatile",
+                                temperature=0.1,
+                                max_tokens=1024,
+                            )
+                            resp_text = chat_completion.choices[0].message.content
+                        except Exception as ex:
+                            st.error(f"Engine Error: {str(ex)}")
+
+                    # Render Response
+                    if resp_text:
                         st.markdown(resp_text)
 
                         if voice_enabled:
@@ -218,26 +239,4 @@ if prompt := st.chat_input("Pro AI se kuch bhi pucho, ya photo banane ko bolo...
                         st.session_state.messages.append(
                             {"role": "model", "content": resp_text}
                         )
-
-                    except Exception as e:
-                        # Fallback Model if gemini-2.5-flash alias differs in regional endpoint
-                        try:
-                            model_fallback = genai.GenerativeModel(
-                                model_name="gemini-2.0-flash",
-                                system_instruction=SYSTEM_INSTRUCTION
-                            )
-                            response = model_fallback.generate_content(prompt)
-                            resp_text = response.text
-                            st.markdown(resp_text)
-
-                            if voice_enabled:
-                                audio_fp = text_to_speech(resp_text)
-                                if audio_fp:
-                                    st.audio(audio_fp, format="audio/mp3")
-
-                            st.session_state.messages.append(
-                                {"role": "model", "content": resp_text}
-                            )
-                        except Exception as ex:
-                            st.error(f"Gemini Engine Error: {str(ex)}")
-                            
+                        
