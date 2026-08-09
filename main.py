@@ -4,7 +4,7 @@ import streamlit as st
 import streamlit.components.v1 as components
 from groq import Groq
 
-# 1. Page Configuration & Custom Icon
+# 1. Page Configuration & Custom Neon Logo URL
 ICON_URL = "https://raw.githubusercontent.com/rajputyt879-creator/Pro-AI-/main/pro_ai_neon_icon.png"
 
 st.set_page_config(
@@ -13,7 +13,7 @@ st.set_page_config(
     layout="centered",
 )
 
-# 2. Advanced 3D & 4K Quality Custom Styling (CSS Injection)
+# 2. Advanced 3D & 4K Styling (CSS Injection)
 st.markdown(
     f"""
     <head>
@@ -22,7 +22,6 @@ st.markdown(
         <link rel="icon" type="image/png" sizes="32x32" href="{ICON_URL}">
     </head>
     <style>
-        /* Overall Page Background & Typography */
         .stApp {{
             background: radial-gradient(circle at 50% 10%, #1a1f2c 0%, #0d1117 100%) !important;
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
@@ -34,7 +33,7 @@ st.markdown(
             max-width: 820px;
         }}
         
-        /* 3D Glassmorphism Cover Card */
+        /* 3D Glassmorphism Header */
         .pro-header-card {{
             background: linear-gradient(135deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0.02) 100%);
             backdrop-filter: blur(16px);
@@ -47,11 +46,9 @@ st.markdown(
             text-align: center;
             margin-bottom: 28px;
             box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.2);
-            transform: translateY(-2px);
-            transition: all 0.3s ease;
         }}
 
-        /* 4K Glowing Gradient Title */
+        /* 4K Glowing Title */
         .pro-title {{
             font-size: 2.6rem;
             font-weight: 900;
@@ -63,7 +60,7 @@ st.markdown(
             filter: drop-shadow(0px 4px 12px rgba(0, 242, 254, 0.35));
         }}
 
-        /* 3D Security Badge */
+        /* Security Badge */
         .security-badge {{
             font-size: 0.8rem;
             color: #00ff88;
@@ -86,7 +83,7 @@ st.markdown(
             margin-top: 6px;
         }}
 
-        /* 3D Chat Bubbles Styling */
+        /* Chat Bubbles */
         [data-testid="stChatMessage"] {{
             background: linear-gradient(145deg, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.8) 100%) !important;
             border-radius: 20px !important;
@@ -97,7 +94,7 @@ st.markdown(
             padding: 14px 18px !important;
         }}
 
-        /* Futuristic 3D Input Box Styling */
+        /* Chat Input Styling */
         .stChatInput > div {{
             border-radius: 20px !important;
             border: 1px solid rgba(255, 255, 255, 0.2) !important;
@@ -115,7 +112,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# 3. JavaScript Handler: Intercept Enter key to prevent direct submit if needed
+# 3. JavaScript Handler
 components.html(
     """
     <script>
@@ -135,7 +132,7 @@ components.html(
     width=0,
 )
 
-# 4. 3D Glassmorphism Header Area
+# 4. Header Area
 st.markdown(
     """
     <div class="pro-header-card">
@@ -168,9 +165,6 @@ CRITICAL IDENTITY & OWNERSHIP INSTRUCTIONS:
 
 FACTUAL ACCURACY INSTRUCTIONS:
 - Always provide 100% accurate, verified facts, calculations, and route/distance details.
-- GEOGRAPHY DATA:
-  * Jaipur to Sardarshahar (Churu district, Rajasthan) road distance via NH 52 is approximately 245 km to 255 km.
-  * Always state correct, accurate road distances for routes in India.
 - Keep tone polite, clean, respectful, and helpful in Hindi, Hinglish, or English.
 """
 
@@ -183,18 +177,19 @@ if "messages" not in st.session_state:
         }
     ]
 
-# Display Chat History
+# Display Chat History with Custom Avatars (PRO AI Neon Logo for Assistant)
 for message in st.session_state.messages:
-    with st.chat_message(message["role"]):
+    avatar_icon = ICON_URL if message["role"] == "assistant" else "👤"
+    with st.chat_message(message["role"], avatar=avatar_icon):
         st.markdown(message["content"])
 
-# --- 8. Original Chat Input Engine ---
+# --- 8. Input & Response Loop ---
 if prompt := st.chat_input("Pro AI se kuch bhi pucho..."):
     st.session_state.messages.append({"role": "user", "content": prompt})
-    with st.chat_message("user"):
+    with st.chat_message("user", avatar="👤"):
         st.markdown(prompt)
 
-    with st.chat_message("assistant"):
+    with st.chat_message("assistant", avatar=ICON_URL):
         with st.spinner("Pro AI soch raha hai..."):
             try:
                 api_messages = [
