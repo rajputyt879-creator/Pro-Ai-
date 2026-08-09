@@ -10,12 +10,18 @@ st.set_page_config(
     page_title="Pro AI",
     page_icon="⚡",
     layout="centered",
+    initial_sidebar_state="collapsed",
 )
 
-# 2. ChatGPT Dark Theme & Sidebar CSS
+# 2. Modern Dark Theme CSS & Hide Sidebar Completely
 st.markdown(
     """
     <style>
+        /* Hide Streamlit Sidebar Controls completely */
+        [data-testid="stSidebar"], [data-testid="collapsedControl"] {
+            display: none !important;
+        }
+
         .stApp {
             background-color: #0d1117 !important;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
@@ -63,11 +69,6 @@ st.markdown(
             margin-top: 4px;
         }
 
-        [data-testid="stSidebar"] {
-            background-color: #161b22 !important;
-            border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
-        }
-
         [data-testid="stChatMessage"] {
             background-color: #161b22 !important;
             border-radius: 14px !important;
@@ -95,7 +96,7 @@ st.markdown(
 st.markdown(
     """
     <div class="pro-header-card">
-        <div class="security-badge">🔏 Anti-Abuse & High-Availability Engine Active</div>
+        <div class="security-badge">🔏 Anti-Abuse Privacy Shield Active</div>
         <div class="pro-title">⚡ Pro AI</div>
         <div class="pro-subtitle">Ask ProAi</div>
     </div>
@@ -141,9 +142,7 @@ IDENTITY & OWNERSHIP RULES:
 - ONLY when explicitly asked "Who created you?", "Who is your owner?", or "Aapko kisne banaya?", reply: "Mujhe Kishan Singh ne banaya hai aur mere owner Kishan Singh hi hain."
 """
 
-# --- 7. Sidebar Navigation ---
-st.sidebar.markdown("### ⚡ Pro AI Navigation")
-
+# --- 7. Session Management ---
 if "is_blocked" not in st.session_state:
     st.session_state.is_blocked = False
 
@@ -155,40 +154,13 @@ if "messages" not in st.session_state:
         }
     ]
 
-# New Chat Button
-if st.sidebar.button("➕ New Chat", use_container_width=True):
-    st.session_state.messages = [
-        {
-            "role": "assistant",
-            "content": "Namaste! Main **Pro AI** hu. Main aapki kya madad kar sakta hu?",
-        }
-    ]
-    st.session_state.is_blocked = False
-    st.rerun()
-
-st.sidebar.markdown("---")
-st.sidebar.markdown("### 💬 Recent Prompts")
-
-user_prompts = [m["content"] for m in st.session_state.messages if m["role"] == "user"]
-
-if user_prompts:
-    for idx, p in enumerate(reversed(user_prompts), 1):
-        preview_text = p[:28] + "..." if len(p) > 28 else p
-        st.sidebar.button(f"💬 {preview_text}", key=f"hist_{idx}", use_container_width=True)
-else:
-    st.sidebar.caption("Koi purani chat nahi hai. Naya sawal poochein!")
-
-st.sidebar.markdown("---")
-security_color = "🔴 BLOCKED" if st.session_state.is_blocked else "🟢 SECURE"
-st.sidebar.caption(f"Privacy Shield: **{security_color}**")
-
 # --- 8. Display Messages ---
 for message in st.session_state.messages:
     avatar_icon = "⚡" if message["role"] == "assistant" else "👤"
     with st.chat_message(message["role"], avatar=avatar_icon):
         st.markdown(message["content"])
 
-# --- 9. Input & Response Loop (Placeholder: Ask ProAi...) ---
+# --- 9. Input & Response Engine ---
 if prompt := st.chat_input("Ask ProAi..."):
     if st.session_state.is_blocked:
         st.error("🚫 Aapko Pro AI system se block kar diya gaya hai.")
