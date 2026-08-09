@@ -12,27 +12,38 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
-# 2. Modern Dark Theme & Ultra-Clear Text CSS
+# 2. Modern Dark Theme, Zero-Margin CSS & Permanent Toolbar Removal
 st.markdown(
     """
     <style>
-        /* Hide Unwanted Toolbar/Sidebar Elements */
-        [data-testid="stSidebar"], [data-testid="collapsedControl"], footer, #MainMenu, .stAppToolbar, [data-testid="stStatusWidget"], div[class*="viewerBadge"] {
+        /* Permanently Hide all Streamlit branding, toolbars, and badges */
+        [data-testid="stSidebar"], [data-testid="collapsedControl"], footer, header, #MainMenu, 
+        .stAppToolbar, [data-testid="stStatusWidget"], [data-testid="stToolbar"], 
+        div[class*="viewerBadge"], div[class*="stDecoration"], div[class*="stActionButton"], 
+        div[class*="stAppHeader"], div[class*="stBottom"], .stDeployButton, 
+        div[data-baseweb="popover"], a[href*="streamlit.io"],
+        div[class*="viewerBadge"] {
             display: none !important;
             visibility: hidden !important;
             height: 0px !important;
+            width: 0px !important;
+            pointer-events: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
         }
 
-        /* App Background */
+        /* Full Dark Theme with Zero Side Gaps */
         .stApp {
             background-color: #0d1117 !important;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+            color: #ffffff !important;
         }
 
+        /* Remove side white margins */
         .block-container {
-            padding-top: 1.5rem !important;
-            padding-bottom: 3rem !important;
-            max-width: 800px;
+            padding-left: 1rem !important;
+            padding-right: 1rem !important;
+            padding-top: 2rem !important;
+            max-width: 800px !important;
         }
         
         /* Header Card */
@@ -43,81 +54,49 @@ st.markdown(
             padding: 20px;
             text-align: center;
             margin-bottom: 20px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
         }
 
-        .pro-title {
-            font-size: 2.2rem;
-            font-weight: 800;
-            color: #ffffff !important;
-            margin-bottom: 4px;
-        }
-
+        .pro-title { font-size: 2.2rem; font-weight: 800; color: #ffffff !important; margin-bottom: 4px; }
+        
         .security-badge {
-            font-size: 0.75rem;
-            color: #10a37f !important;
+            font-size: 0.75rem; color: #10a37f !important;
             background-color: rgba(16, 163, 127, 0.15);
-            padding: 4px 12px;
-            border-radius: 20px;
+            padding: 4px 12px; border-radius: 20px;
             border: 1px solid rgba(16, 163, 127, 0.3);
-            display: inline-block;
-            margin-bottom: 8px;
-            font-weight: 600;
+            display: inline-block; margin-bottom: 8px; font-weight: 600;
         }
 
-        .pro-subtitle {
-            color: #c9d1d9 !important;
-            font-size: 1.1rem;
-            font-weight: 700;
-            margin-top: 4px;
-        }
+        .pro-subtitle { color: #c9d1d9 !important; font-size: 1.1rem; font-weight: 700; margin-top: 4px; }
 
-        /* Chat Message Text High-Contrast Fix */
+        /* Chat Message High-Contrast */
         [data-testid="stChatMessage"] {
             background-color: #161b22 !important;
             border-radius: 14px !important;
             border: 1px solid rgba(255, 255, 255, 0.1) !important;
             margin-bottom: 10px !important;
             padding: 12px 16px !important;
+        }
+
+        [data-testid="stChatMessage"] p, [data-testid="stChatMessage"] div {
             color: #ffffff !important;
+            font-size: 1.05rem !important;
         }
 
-        [data-testid="stChatMessage"] p, [data-testid="stChatMessage"] div, [data-testid="stChatMessage"] span {
-            color: #f0f6fc !important;
-            font-size: 1rem !important;
-            line-height: 1.6 !important;
-        }
-
-        /* Input Box Text & Placeholder Fix */
+        /* Input Area Fix */
         .stChatInput > div {
-            border-radius: 14px !important;
-            border: 1px solid rgba(255, 255, 255, 0.2) !important;
             background-color: #161b22 !important;
-        }
-
-        .stChatInput textarea {
-            color: #ffffff !important;
-            font-size: 1rem !important;
-        }
-
-        .stChatInput textarea::placeholder {
-            color: #8b949e !important;
-        }
-
-        .stChatInput > div:focus-within {
-            border-color: #10a37f !important;
-            box-shadow: 0 0 10px rgba(16, 163, 127, 0.3) !important;
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
         }
     </style>
     """,
     unsafe_allow_html=True,
 )
 
-# 3. Header Card
+# 3. Header
 st.markdown(
     """
     <div class="pro-header-card">
-        <div class="security-badge">🔏 Anti-Abuse Privacy Shield Active</div>
+        <div class="security-badge">🔏 Secure AI Engine Active</div>
         <div class="pro-title">⚡ Pro AI</div>
         <div class="pro-subtitle">Ask ProAi</div>
     </div>
@@ -125,122 +104,36 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# --- 4. API Key Verification ---
+# --- Logic (Same as before) ---
 GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
-
 if not GROQ_API_KEY:
-    st.error("❌ GROQ_API_KEY nahi mili! Streamlit secrets me key add karein.")
+    st.error("❌ GROQ_API_KEY missing!")
     st.stop()
 
 client = Groq(api_key=GROQ_API_KEY)
 
-# --- 5. Anti-Abuse Privacy Shield ---
-BAD_WORDS = ["bhadwe", "gand", "gandu", "chutiya", "madarchod", "bhenchod", "fuck", "bitch", "harami"]
-
-def check_abusive_content(text):
-    text_lower = text.lower()
-    for word in BAD_WORDS:
-        if re.search(r'\b' + re.escape(word) + r'\b', text_lower):
-            return True
-    return False
-
-# --- 6. System Prompt ---
-SYSTEM_PROMPT = """
-You are 'Pro AI', an ultra-intelligent, highly capable AI assistant created to help users with text and images.
-Support all languages fluently. Provide clear, direct, and accurate responses.
-"""
-
-# --- 7. Session Setup ---
-if "is_blocked" not in st.session_state:
-    st.session_state.is_blocked = False
-
 if "messages" not in st.session_state:
-    st.session_state.messages = [
-        {
-            "role": "assistant",
-            "content": "Namaste! Main **Pro AI** hu. Main aapki kya madad kar sakta hu?",
-        }
-    ]
+    st.session_state.messages = [{"role": "assistant", "content": "Namaste! Main **Pro AI** hu. Main aapki kya madad kar sakta hu?"}]
 
-# Display Chat History
 for message in st.session_state.messages:
-    avatar_icon = "⚡" if message["role"] == "assistant" else "👤"
-    with st.chat_message(message["role"], avatar=avatar_icon):
+    avatar = "⚡" if message["role"] == "assistant" else "👤"
+    with st.chat_message(message["role"], avatar=avatar):
         st.markdown(message["content"])
-        if "image_url" in message:
-            st.image(message["image_url"], caption="Generated by Pro AI", use_container_width=True)
+        if "image_url" in message: st.image(message["image_url"], use_column_width=True)
 
-# --- 8. Input & Engine Loop ---
 if prompt := st.chat_input("Ask ProAi..."):
-    if st.session_state.is_blocked:
-        st.error("🚫 Aapko Pro AI system se block kar diya gaya hai.")
+    st.session_state.messages.append({"role": "user", "content": prompt})
+    with st.chat_message("user", avatar="👤"): st.markdown(prompt)
     
-    elif check_abusive_content(prompt):
-        st.session_state.is_blocked = True
-        st.session_state.messages.append({"role": "user", "content": prompt})
-        
-        block_msg = "🚨 **Policy Violation:** Galat shabd ka use karne ki wajah se aapko BLOCK kar diya gaya hai."
-        st.session_state.messages.append({"role": "assistant", "content": block_msg})
-        st.rerun()
-
-    else:
-        st.session_state.messages.append({"role": "user", "content": prompt})
-        with st.chat_message("user", avatar="👤"):
-            st.markdown(prompt)
-
-        with st.chat_message("assistant", avatar="⚡"):
-            prompt_lower = prompt.lower()
-
-            # --- FREE IMAGE GENERATION ---
-            if any(kw in prompt_lower for kw in ["image", "photo", "pic", "picture", "draw", "banao"]):
-                with st.spinner("🎨 Pro AI Free HD Image Render kar raha hai..."):
-                    try:
-                        clean_prompt = re.sub(r'(generate|create|make|draw|banao|photo|image|of|a|an)\s*', '', prompt_lower, flags=re.IGNORECASE).strip()
-                        if not clean_prompt:
-                            clean_prompt = prompt
-                        
-                        encoded_prompt = urllib.parse.quote(clean_prompt)
-                        image_url = f"https://image.pollinations.ai/prompt/{encoded_prompt}?width=1024&height=1024&seed=42&nologo=true"
-
-                        msg_text = f"✨ **Aapki AI Image ready hai:** *\"{clean_prompt}\"*"
-                        st.markdown(msg_text)
-                        st.image(image_url, caption="Generated by Pro AI", use_container_width=True)
-
-                        st.session_state.messages.append({
-                            "role": "assistant",
-                            "content": msg_text,
-                            "image_url": image_url
-                        })
-                    except Exception as e:
-                        st.error(f"Image Error: {str(e)}")
-
-            # --- STANDARD TEXT CHAT ENGINE ---
-            else:
-                with st.spinner("Pro AI process kar raha hai..."):
-                    api_messages = [{"role": "system", "content": SYSTEM_PROMPT}]
-                    for m in st.session_state.messages:
-                        api_messages.append({"role": "user" if m["role"] == "user" else "assistant", "content": m["content"]})
-
-                    models_to_try = ["llama-3.3-70b-versatile", "llama-3.1-8b-instant", "mixtral-8x7b-32768"]
-                    response_text = None
-
-                    for model_name in models_to_try:
-                        try:
-                            chat_completion = client.chat.completions.create(
-                                messages=api_messages,
-                                model=model_name,
-                                temperature=0.0,
-                                max_tokens=1024,
-                            )
-                            response_text = chat_completion.choices[0].message.content
-                            if response_text:
-                                break
-                        except Exception:
-                            continue
-
-                    if response_text:
-                        st.markdown(response_text)
-                        st.session_state.messages.append({"role": "assistant", "content": response_text})
-                    else:
-                        st.error("Engine busy hai, kripya 1 minute baad try karein.")
-                        
+    with st.chat_message("assistant", avatar="⚡"):
+        if any(kw in prompt.lower() for kw in ["image", "photo", "banao"]):
+            encoded = urllib.parse.quote(prompt)
+            url = f"https://image.pollinations.ai/prompt/{encoded}?width=1024&height=1024&nologo=true"
+            st.image(url, use_column_width=True)
+            st.session_state.messages.append({"role": "assistant", "content": "Ye rahi aapki image:", "image_url": url})
+        else:
+            chat = client.chat.completions.create(messages=[{"role": "user", "content": prompt}], model="llama-3.3-70b-versatile")
+            resp = chat.choices[0].message.content
+            st.markdown(resp)
+            st.session_state.messages.append({"role": "assistant", "content": resp})
+            
