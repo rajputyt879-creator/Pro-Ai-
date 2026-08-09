@@ -12,7 +12,7 @@ st.set_page_config(
     layout="centered",
 )
 
-# 2. ChatGPT / Gemini Style Dark Theme CSS
+# 2. ChatGPT Dark Theme CSS
 st.markdown(
     """
     <style>
@@ -105,14 +105,13 @@ if not GROQ_API_KEY:
 
 client = Groq(api_key=GROQ_API_KEY)
 
-# --- 5. Privacy & Bad Words Auto-Block Filter ---
+# --- 5. Bad Words Filter ---
 BAD_WORDS = [
     "bhadwe", "gand", "gandu", "chutiya", "madarchod", "bhenchod", 
     "gaali", "fuck", "bitch", "bastard", "harami", "bsdk"
 ]
 
 def check_abusive_content(text):
-    """Checks if input contains abusive language"""
     text_lower = text.lower()
     for word in BAD_WORDS:
         if re.search(r'\b' + re.escape(word) + r'\b', text_lower):
@@ -135,7 +134,7 @@ IDENTITY & OWNERSHIP RULES:
 - ONLY when explicitly asked "Who created you?", "Who is your owner?", or "Aapko kisne banaya?", reply: "Mujhe Kishan Singh ne banaya hai aur mere owner Kishan Singh hi hain."
 """
 
-# --- 7. Sidebar Controls ---
+# --- 7. Sidebar Controls & Clickable History ---
 st.sidebar.title("⚡ Pro AI Controls")
 
 if "is_blocked" not in st.session_state:
@@ -161,8 +160,20 @@ if st.sidebar.button("➕ New Chat / Clear History", use_container_width=True):
     st.rerun()
 
 st.sidebar.markdown("---")
-st.sidebar.subheader("📜 Chat Stats")
-st.sidebar.caption(f"Total Messages: {len(st.session_state.messages)}")
+st.sidebar.subheader("💬 Active Chat History")
+
+# Interactive Chat History Items in Sidebar
+user_msgs = [m["content"] for m in st.session_state.messages if m["role"] == "user"]
+
+if user_msgs:
+    for idx, msg in enumerate(user_msgs, 1):
+        # Shorten message preview
+        preview = msg[:25] + "..." if len(msg) > 25 else msg
+        st.sidebar.write(f"**{idx}.** {preview}")
+else:
+    st.sidebar.caption("Abhi koi purani baat nahi hai. Sawal poochna shuru karein!")
+
+st.sidebar.markdown("---")
 st.sidebar.caption(f"Security Status: {'🚫 BLOCKED' if st.session_state.is_blocked else '🟢 SECURE'}")
 
 # --- 8. Display Messages ---
@@ -171,18 +182,16 @@ for message in st.session_state.messages:
     with st.chat_message(message["role"], avatar=avatar_icon):
         st.markdown(message["content"])
 
-# --- 9. Input & Security Block Handling ---
+# --- 9. Input & Processing ---
 if prompt := st.chat_input("Pro AI se kuch bhi pucho..."):
-    # If user is already blocked
     if st.session_state.is_blocked:
-        st.error("🚫 Aapko Pro AI system se block kar diya gaya hai. Abuse policy violation.")
+        st.error("🚫 Aapko Pro AI system se block kar diya gaya hai.")
     
-    # Check for abusive language
     elif check_abusive_content(prompt):
         st.session_state.is_blocked = True
         st.session_state.messages.append({"role": "user", "content": prompt})
         
-        block_msg = "🚨 **Privacy Policy Violation:** Aapne galat shabd ka use kiya hai. Pro AI app ne aapki access ko **BLOCK** kar diya hai."
+        block_msg = "🚨 **Policy Violation:** Galat shabd ka use karne ki wajah se aapko BLOCK kar diya gaya hai."
         st.session_state.messages.append({"role": "assistant", "content": block_msg})
         st.rerun()
 
@@ -214,4 +223,4 @@ if prompt := st.chat_input("Pro AI se kuch bhi pucho..."):
 
                 except Exception as e:
                     st.error(f"Error: {str(e)}")
-                    
+                                          
