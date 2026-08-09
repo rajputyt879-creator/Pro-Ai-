@@ -13,7 +13,7 @@ st.set_page_config(
     layout="centered",
 )
 
-# 2. Advanced Professional Styling
+# 2. Advanced 3D & 4K Quality Custom Styling (CSS Injection)
 st.markdown(
     f"""
     <head>
@@ -22,72 +22,100 @@ st.markdown(
         <link rel="icon" type="image/png" sizes="32x32" href="{ICON_URL}">
     </head>
     <style>
+        /* Overall Page Background & Typography */
+        .stApp {{
+            background: radial-gradient(circle at 50% 10%, #1a1f2c 0%, #0d1117 100%) !important;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+        }}
+
         .block-container {{
-            padding-top: 1.8rem !important;
-            padding-bottom: 4rem !important;
-            max-width: 800px;
+            padding-top: 2rem !important;
+            padding-bottom: 5rem !important;
+            max-width: 820px;
         }}
         
-        /* Glassmorphism Cover Card */
+        /* 3D Glassmorphism Cover Card */
         .pro-header-card {{
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 18px;
-            padding: 22px 18px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0.02) 100%);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-top: 1px solid rgba(255, 255, 255, 0.3);
+            border-left: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 24px;
+            padding: 28px 22px;
             text-align: center;
-            margin-bottom: 22px;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            margin-bottom: 28px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+            transition: all 0.3s ease;
         }}
 
+        /* 4K Glowing Gradient Title */
         .pro-title {{
-            font-size: 2.2rem;
-            font-weight: 800;
-            background: linear-gradient(90deg, #00f2fe 0%, #4facfe 100%);
+            font-size: 2.6rem;
+            font-weight: 900;
+            background: linear-gradient(90deg, #00f2fe 0%, #4facfe 50%, #00c6ff 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin-bottom: 6px;
-            letter-spacing: -0.5px;
+            margin-bottom: 8px;
+            letter-spacing: -0.8px;
+            filter: drop-shadow(0px 4px 12px rgba(0, 242, 254, 0.35));
         }}
 
+        /* 3D Security Badge */
         .security-badge {{
-            font-size: 0.78rem;
+            font-size: 0.8rem;
             color: #00ff88;
-            background-color: rgba(0, 255, 136, 0.1);
-            padding: 4px 12px;
-            border-radius: 20px;
-            border: 1px solid rgba(0, 255, 136, 0.3);
+            background: linear-gradient(135deg, rgba(0, 255, 136, 0.15) 0%, rgba(0, 255, 136, 0.05) 100%);
+            padding: 6px 16px;
+            border-radius: 30px;
+            border: 1px solid rgba(0, 255, 136, 0.4);
+            box-shadow: 0 0 15px rgba(0, 255, 136, 0.2);
             display: inline-block;
-            margin-bottom: 10px;
-            font-weight: 600;
-            letter-spacing: 0.3px;
+            margin-bottom: 12px;
+            font-weight: 700;
+            letter-spacing: 0.4px;
+            text-transform: uppercase;
         }}
 
         .pro-subtitle {{
-            color: #a0aec0;
-            font-size: 0.9rem;
-            margin-top: 4px;
+            color: #cbd5e1;
+            font-size: 0.95rem;
+            font-weight: 500;
+            margin-top: 6px;
         }}
 
-        /* Chat Input Area Styling */
+        /* 3D Chat Bubbles Styling */
+        [data-testid="stChatMessage"] {{
+            background: linear-gradient(145deg, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.8) 100%) !important;
+            border-radius: 20px !important;
+            border: 1px solid rgba(255, 255, 255, 0.08) !important;
+            border-top: 1px solid rgba(255, 255, 255, 0.15) !important;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+            margin-bottom: 14px !important;
+            padding: 14px 18px !important;
+        }}
+
+        /* Futuristic 3D Input Box Styling */
         .stChatInput > div {{
-            border-radius: 16px !important;
-            border: 1px solid rgba(255, 255, 255, 0.18) !important;
-            background-color: rgba(15, 23, 42, 0.85) !important;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3) !important;
+            border-radius: 20px !important;
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+            border-top: 1px solid rgba(255, 255, 255, 0.3) !important;
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.9) 100%) !important;
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
         }}
 
         .stChatInput > div:focus-within {{
             border-color: #00f2fe !important;
-            box-shadow: 0 0 15px rgba(0, 242, 254, 0.35) !important;
+            box-shadow: 0 0 25px rgba(0, 242, 254, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
         }}
     </style>
     """,
     unsafe_allow_html=True,
 )
 
-# 3. JavaScript Handler: Intercept Keyboard Enter (↵) to prevent auto-submission & insert new line instead
+# 3. JavaScript Handler: Intercept Enter key to prevent direct submit if needed
 components.html(
     """
     <script>
@@ -98,7 +126,6 @@ components.html(
             if (activeElem && activeElem.tagName === 'TEXTAREA') {
                 e.stopPropagation();
                 e.stopImmediatePropagation();
-                // Allow enter to function as newline instead of form submit
             }
         }
     }, true);
@@ -108,11 +135,11 @@ components.html(
     width=0,
 )
 
-# 4. Header Section
+# 4. 3D Glassmorphism Header Area
 st.markdown(
     """
     <div class="pro-header-card">
-        <div class="security-badge">🔒 End-to-End Encrypted & Verified Accuracy</div>
+        <div class="security-badge">🔒 End-to-End Encrypted & Verified 4K Accuracy</div>
         <div class="pro-title">⚡ Pro AI</div>
         <div class="pro-subtitle">Created & Owned by <b>Kishan Singh</b> | Advanced Intelligence Platform</div>
     </div>
