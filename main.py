@@ -4,16 +4,16 @@ import streamlit as st
 import streamlit.components.v1 as components
 from groq import Groq
 
-# 1. Custom Neon Logo URL
+# 1. Page Configuration
 ICON_URL = "https://raw.githubusercontent.com/rajputyt879-creator/Pro-AI-/main/pro_ai_neon_icon.png"
 
 st.set_page_config(
     page_title="Pro AI",
-    page_icon=ICON_URL,
+    page_icon="⚡",
     layout="centered",
 )
 
-# 2. ChatGPT-Style Clean UI Styling (CSS)
+# 2. ChatGPT-Style Modern Clean UI Styling (CSS)
 st.markdown(
     f"""
     <head>
@@ -28,17 +28,16 @@ st.markdown(
         }}
 
         .block-container {{
-            padding-top: 2rem !important;
+            padding-top: 1.8rem !important;
             padding-bottom: 5rem !important;
             max-width: 800px;
         }}
         
-        /* ChatGPT Cover Style Header */
+        /* ChatGPT Cover Header Card */
         .pro-header-card {{
-            background: rgba(22, 27, 34, 0.8);
-            backdrop-filter: blur(12px);
+            background: #161b22;
             border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 16px;
+            border-radius: 18px;
             padding: 24px 20px;
             text-align: center;
             margin-bottom: 24px;
@@ -46,7 +45,7 @@ st.markdown(
         }}
 
         .pro-title {{
-            font-size: 2.4rem;
+            font-size: 2.3rem;
             font-weight: 800;
             color: #ffffff;
             margin-bottom: 6px;
@@ -75,12 +74,19 @@ st.markdown(
         [data-testid="stChatMessage"] {{
             background: #161b22 !important;
             border-radius: 16px !important;
-            border: 1px solid rgba(255, 255, 255, 0.05) !important;
+            border: 1px solid rgba(255, 255, 255, 0.08) !important;
             margin-bottom: 12px !important;
             padding: 14px 18px !important;
         }}
 
-        /* Input Bar */
+        /* Avatar Styling Fix */
+        [data-testid="stChatMessageAvatar"] {{
+            background-color: #21262d !important;
+            border-radius: 10px !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        }}
+
+        /* Input Bar Styling */
         .stChatInput > div {{
             border-radius: 16px !important;
             border: 1px solid rgba(255, 255, 255, 0.15) !important;
@@ -97,7 +103,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# 3. JavaScript Handler for Keyboard Enter
+# 3. JavaScript Handler
 components.html(
     """
     <script>
@@ -117,7 +123,7 @@ components.html(
     width=0,
 )
 
-# 4. Header Area
+# 4. Header Section
 st.markdown(
     """
     <div class="pro-header-card">
@@ -138,7 +144,7 @@ if not GROQ_API_KEY:
 
 client = Groq(api_key=GROQ_API_KEY)
 
-# --- 6. Strict System Instructions (Identity Rules) ---
+# --- 6. Strict System Instructions ---
 SYSTEM_PROMPT = """
 You are 'Pro AI', an intelligent, polite, highly professional, and accurate AI assistant. Your name is strictly 'Pro AI'.
 
@@ -161,9 +167,9 @@ if "messages" not in st.session_state:
         }
     ]
 
-# Display Chat History with ChatGPT Style Clean Avatars
+# ChatGPT Style Crisp Avatars ("⚡" for Pro AI, "👤" for User)
 for message in st.session_state.messages:
-    avatar_icon = ICON_URL if message["role"] == "assistant" else "👤"
+    avatar_icon = "⚡" if message["role"] == "assistant" else "👤"
     with st.chat_message(message["role"], avatar=avatar_icon):
         st.markdown(message["content"])
 
@@ -173,7 +179,7 @@ if prompt := st.chat_input("Pro AI se kuch bhi pucho..."):
     with st.chat_message("user", avatar="👤"):
         st.markdown(prompt)
 
-    with st.chat_message("assistant", avatar=ICON_URL):
+    with st.chat_message("assistant", avatar="⚡"):
         with st.spinner("Pro AI soch raha hai..."):
             try:
                 api_messages = [
