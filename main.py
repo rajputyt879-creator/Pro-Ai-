@@ -12,52 +12,26 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
-# 2. Modern Dark Theme, Clear Text & "Manage App" Removal CSS
+# 2. Modern Dark Theme & Fixed Layout CSS
 st.markdown(
     """
     <style>
-        /* Permanently Hide Streamlit Branding, Toolbar & Manage App Footer */
-        [data-testid="stSidebar"], 
-        [data-testid="collapsedControl"], 
-        footer, 
-        header, 
-        #MainMenu, 
-        .stAppToolbar, 
-        [data-testid="stStatusWidget"], 
-        [data-testid="stToolbar"],
-        div[class*="viewerBadge"],
-        div[class*="stDecoration"],
-        div[class*="stActionButton"],
-        div[class*="stAppHeader"],
-        div[class*="stBottom"],
-        .stDeployButton,
-        div[data-baseweb="popover"],
-        a[href*="streamlit.io"] {
+        /* Hide Sidebar & Default Headers */
+        [data-testid="stSidebar"], [data-testid="collapsedControl"], footer, header, #MainMenu {
             display: none !important;
-            visibility: hidden !important;
-            opacity: 0 !important;
-            height: 0px !important;
-            width: 0px !important;
-            pointer-events: none !important;
-            margin: 0 !important;
-            padding: 0 !important;
         }
 
-        /* App Dark Background & Full Width Styling */
         .stApp {
             background-color: #0d1117 !important;
             color: #ffffff !important;
         }
 
         .block-container {
-            padding-left: 1rem !important;
-            padding-right: 1rem !important;
             padding-top: 1.5rem !important;
-            padding-bottom: 5rem !important;
+            padding-bottom: 6rem !important;
             max-width: 800px !important;
         }
         
-        /* Header Card */
         .pro-header-card {
             background: #161b22;
             border: 1px solid rgba(255, 255, 255, 0.1);
@@ -65,7 +39,6 @@ st.markdown(
             padding: 20px;
             text-align: center;
             margin-bottom: 20px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
         }
 
         .pro-title {
@@ -94,26 +67,26 @@ st.markdown(
             margin-top: 4px;
         }
 
-        /* Chat Message Text High-Contrast Fix */
+        /* High-Contrast Chat Messages */
         [data-testid="stChatMessage"] {
             background-color: #161b22 !important;
             border-radius: 14px !important;
             border: 1px solid rgba(255, 255, 255, 0.1) !important;
             margin-bottom: 10px !important;
             padding: 12px 16px !important;
-            color: #ffffff !important;
         }
 
         [data-testid="stChatMessage"] p, [data-testid="stChatMessage"] div, [data-testid="stChatMessage"] span {
-            color: #f0f6fc !important;
+            color: #ffffff !important;
             font-size: 1rem !important;
             line-height: 1.6 !important;
         }
 
-        /* Chat Input Box (Typing Box Enabled & Styled) */
+        /* Always Visible Chat Input Box */
         .stChatInput {
-            display: block !important;
-            visibility: visible !important;
+            position: fixed !important;
+            bottom: 20px !important;
+            z-index: 999999 !important;
         }
 
         .stChatInput > div {
@@ -129,11 +102,6 @@ st.markdown(
 
         .stChatInput textarea::placeholder {
             color: #8b949e !important;
-        }
-
-        .stChatInput > div:focus-within {
-            border-color: #10a37f !important;
-            box-shadow: 0 0 10px rgba(16, 163, 127, 0.3) !important;
         }
     </style>
     """,
