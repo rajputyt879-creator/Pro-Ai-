@@ -1,9 +1,7 @@
 import os
 import re
 import streamlit as st
-import streamlit.components.v1 as components
 from groq import Groq
-from PIL import Image
 
 # 1. Page Configuration
 ICON_URL = "https://raw.githubusercontent.com/rajputyt879-creator/Pro-AI-/main/pro_ai_neon_icon.png"
@@ -14,7 +12,7 @@ st.set_page_config(
     layout="centered",
 )
 
-# 2. Modern Custom Styling
+# 2. ChatGPT / Gemini Style Dark Theme CSS
 st.markdown(
     """
     <style>
@@ -86,13 +84,13 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# 3. Header UI
+# 3. Header Section
 st.markdown(
     """
     <div class="pro-header-card">
-        <div class="security-badge">🔒 Encrypted & Multimodal Vision Active</div>
+        <div class="security-badge">🔏 Anti-Abuse Privacy Shield Active</div>
         <div class="pro-title">⚡ Pro AI</div>
-        <div class="pro-subtitle">Advanced Intelligence Platform</div>
+        <div class="pro-subtitle">ChatGPT & Gemini Powered Intelligence Platform</div>
     </div>
     """,
     unsafe_allow_html=True,
@@ -107,32 +105,47 @@ if not GROQ_API_KEY:
 
 client = Groq(api_key=GROQ_API_KEY)
 
-# --- 5. System Rules ---
+# --- 5. Privacy & Bad Words Auto-Block Filter ---
+BAD_WORDS = [
+    "bhadwe", "gand", "gandu", "chutiya", "madarchod", "bhenchod", 
+    "gaali", "fuck", "bitch", "bastard", "harami", "bsdk"
+]
+
+def check_abusive_content(text):
+    """Checks if input contains abusive language"""
+    text_lower = text.lower()
+    for word in BAD_WORDS:
+        if re.search(r'\b' + re.escape(word) + r'\b', text_lower):
+            return True
+    return False
+
+# --- 6. System Instructions ---
 SYSTEM_PROMPT = """
-You are 'Pro AI', an ultra-intelligent, highly capable, multi-lingual AI assistant.
+You are 'Pro AI', an ultra-intelligent AI assistant combining the speed and reasoning of ChatGPT and Google Gemini.
 
-MULTILINGUAL & TRANSLATION RULES:
+MULTILINGUAL & ACCURACY RULES:
 1. Support all global and Indian languages fluently.
-2. When user asks "Translate Hindi" or "Hindi me translate karo", convert the input text into Hindi.
-3. When user asks "Translate English", convert into English.
+2. When asked "Translate Hindi", translate input into Hindi.
+3. When asked "Translate English", translate input into English.
+4. Provide 100% verified factual data without guesswork.
 
-IDENTITY RULES:
-- Your official name is strictly 'Pro AI'.
-- Do not mention creator/owner in general chats.
-- ONLY when explicitly asked "Who created you?" or "Owner kaun hai?", state: "Mujhe Kishan Singh ne banaya hai aur mere owner Kishan Singh hi hain."
-
-FACTUAL ACCURACY:
-- Always provide 100% true, accurate facts and data.
+IDENTITY & OWNERSHIP RULES:
+- Your name is strictly 'Pro AI'.
+- Do not mention owner details in general chats.
+- ONLY when explicitly asked "Who created you?", "Who is your owner?", or "Aapko kisne banaya?", reply: "Mujhe Kishan Singh ne banaya hai aur mere owner Kishan Singh hi hain."
 """
 
-# --- 6. Sidebar Controls & History Management ---
-st.sidebar.title("⚙️ Pro AI Controls")
+# --- 7. Sidebar Controls ---
+st.sidebar.title("⚡ Pro AI Controls")
+
+if "is_blocked" not in st.session_state:
+    st.session_state.is_blocked = False
 
 if "messages" not in st.session_state:
     st.session_state.messages = [
         {
             "role": "assistant",
-            "content": "Namaste! Main **Pro AI** hu. Main Text, Screenshot/Photo aur Voice inputs samajhne ke liye ready hu!",
+            "content": "Namaste! Main **Pro AI** hu. ChatGPT aur Gemini level intelligence ke saath main aapki madad karne ke liye ready hu!",
         }
     ]
 
@@ -144,58 +157,61 @@ if st.sidebar.button("➕ New Chat / Clear History", use_container_width=True):
             "content": "Nayi chat shuru ho gayi hai! Aap kya poochna chahte hain?",
         }
     ]
+    st.session_state.is_blocked = False
     st.rerun()
 
 st.sidebar.markdown("---")
-st.sidebar.subheader("📜 Chat History")
+st.sidebar.subheader("📜 Chat Stats")
 st.sidebar.caption(f"Total Messages: {len(st.session_state.messages)}")
+st.sidebar.caption(f"Security Status: {'🚫 BLOCKED' if st.session_state.is_blocked else '🟢 SECURE'}")
 
-# Image Upload Option in Sidebar/UI
-st.sidebar.markdown("---")
-st.sidebar.subheader("🖼️ Screenshot / Photo Upload")
-uploaded_file = st.sidebar.file_uploader("Upload Image/Screenshot", type=["png", "jpg", "jpeg"])
-
-# --- 7. Display Chat Messages ---
+# --- 8. Display Messages ---
 for message in st.session_state.messages:
-    icon = "assistant" if message["role"] == "assistant" else "user"
-    with st.chat_message(message["role"], avatar=icon):
+    avatar_icon = "⚡" if message["role"] == "assistant" else "👤"
+    with st.chat_message(message["role"], avatar=avatar_icon):
         st.markdown(message["content"])
 
-# --- 8. Input Processing (Text & Screenshot) ---
+# --- 9. Input & Security Block Handling ---
 if prompt := st.chat_input("Pro AI se kuch bhi pucho..."):
-    # Render user prompt
-    user_content = prompt
-    st.session_state.messages.append({"role": "user", "content": user_content})
+    # If user is already blocked
+    if st.session_state.is_blocked:
+        st.error("🚫 Aapko Pro AI system se block kar diya gaya hai. Abuse policy violation.")
     
-    with st.chat_message("user", avatar="user"):
-        st.markdown(user_content)
-        if uploaded_file:
-            st.image(uploaded_file, caption="Uploaded Screenshot", width=250)
+    # Check for abusive language
+    elif check_abusive_content(prompt):
+        st.session_state.is_blocked = True
+        st.session_state.messages.append({"role": "user", "content": prompt})
+        
+        block_msg = "🚨 **Privacy Policy Violation:** Aapne galat shabd ka use kiya hai. Pro AI app ne aapki access ko **BLOCK** kar diya hai."
+        st.session_state.messages.append({"role": "assistant", "content": block_msg})
+        st.rerun()
 
-    with st.chat_message("assistant", avatar="assistant"):
-        with st.spinner("Pro AI process kar raha hai..."):
-            try:
-                api_messages = [{"role": "system", "content": SYSTEM_PROMPT}]
-                for m in st.session_state.messages:
-                    api_messages.append({
-                        "role": "user" if m["role"] == "user" else "assistant",
-                        "content": m["content"]
-                    })
+    else:
+        st.session_state.messages.append({"role": "user", "content": prompt})
+        with st.chat_message("user", avatar="👤"):
+            st.markdown(prompt)
 
-                # Select vision model if photo is uploaded, else standard model
-                selected_model = "llama-3.3-70b-versatile"
+        with st.chat_message("assistant", avatar="⚡"):
+            with st.spinner("Pro AI process kar raha hai..."):
+                try:
+                    api_messages = [{"role": "system", "content": SYSTEM_PROMPT}]
+                    for m in st.session_state.messages:
+                        api_messages.append({
+                            "role": "user" if m["role"] == "user" else "assistant",
+                            "content": m["content"]
+                        })
 
-                chat_completion = client.chat.completions.create(
-                    messages=api_messages,
-                    model=selected_model,
-                    temperature=0.0,
-                    max_tokens=1024,
-                )
+                    chat_completion = client.chat.completions.create(
+                        messages=api_messages,
+                        model="llama-3.3-70b-versatile",
+                        temperature=0.0,
+                        max_tokens=1024,
+                    )
 
-                response = chat_completion.choices[0].message.content
-                st.markdown(response)
-                st.session_state.messages.append({"role": "assistant", "content": response})
+                    response = chat_completion.choices[0].message.content
+                    st.markdown(response)
+                    st.session_state.messages.append({"role": "assistant", "content": response})
 
-            except Exception as e:
-                st.error(f"Error: {str(e)}")
-                
+                except Exception as e:
+                    st.error(f"Error: {str(e)}")
+                    
