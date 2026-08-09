@@ -1,6 +1,7 @@
 import os
 import re
 import streamlit as st
+import streamlit.components.v1 as components
 from groq import Groq
 
 # 1. Page Configuration & Custom Icon
@@ -12,7 +13,7 @@ st.set_page_config(
     layout="centered",
 )
 
-# 2. Advanced Professional Custom Styling (CSS Injection)
+# 2. Advanced Professional Styling & Keyboard Enter-Send Script
 st.markdown(
     f"""
     <head>
@@ -21,23 +22,22 @@ st.markdown(
         <link rel="icon" type="image/png" sizes="32x32" href="{ICON_URL}">
     </head>
     <style>
-        /* Main Container Padding */
         .block-container {{
-            padding-top: 2rem !important;
+            padding-top: 1.8rem !important;
             padding-bottom: 4rem !important;
             max-width: 800px;
         }}
         
-        /* Glassmorphism Header Card */
+        /* Glassmorphism Cover Card */
         .pro-header-card {{
             background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 18px;
-            padding: 24px 20px;
+            padding: 22px 18px;
             text-align: center;
-            margin-bottom: 25px;
+            margin-bottom: 22px;
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
         }}
 
@@ -73,21 +73,41 @@ st.markdown(
         /* Chat Input Area Styling */
         .stChatInput > div {{
             border-radius: 16px !important;
-            border: 1px solid rgba(255, 255, 255, 0.15) !important;
-            background-color: rgba(15, 23, 42, 0.8) !important;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25) !important;
+            border: 1px solid rgba(255, 255, 255, 0.18) !important;
+            background-color: rgba(15, 23, 42, 0.85) !important;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3) !important;
         }}
 
         .stChatInput > div:focus-within {{
             border-color: #00f2fe !important;
-            box-shadow: 0 0 15px rgba(0, 242, 254, 0.3) !important;
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.35) !important;
         }}
     </style>
     """,
     unsafe_allow_html=True,
 )
 
-# 3. Professional Header Area (Cover Section)
+# 3. JS Script to hook Mobile Keyboard Enter button directly to Streamlit Send Button
+components.html(
+    """
+    <script>
+    const parentDoc = window.parent.document;
+    parentDoc.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            const chatInput = parentDoc.querySelector('.stChatInput textarea');
+            const sendButton = parentDoc.querySelector('.stChatInput button');
+            if (chatInput && document.activeElement === chatInput && sendButton) {
+                sendButton.click();
+            }
+        }
+    });
+    </script>
+    """,
+    height=0,
+    width=0,
+)
+
+# 4. Professional Header Area
 st.markdown(
     """
     <div class="pro-header-card">
@@ -99,7 +119,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# --- 4. API Key Setup ---
+# --- 5. API Key Setup ---
 GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
 
 if not GROQ_API_KEY:
@@ -110,7 +130,7 @@ if not GROQ_API_KEY:
 
 client = Groq(api_key=GROQ_API_KEY)
 
-# --- 5. System Instructions (Identity & Fact Accuracy) ---
+# --- 6. System Instructions ---
 SYSTEM_PROMPT = """
 You are 'Pro AI', an intelligent, polite, highly professional, and accurate AI assistant created and owned by Kishan Singh.
 
@@ -126,7 +146,7 @@ FACTUAL ACCURACY INSTRUCTIONS:
 - Keep tone polite, clean, respectful, and helpful in Hindi, Hinglish, or English.
 """
 
-# --- 6. Chat History Management ---
+# --- 7. Chat History Management ---
 if "messages" not in st.session_state:
     st.session_state.messages = [
         {
@@ -140,7 +160,7 @@ for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
-# --- 7. Main Input & Response Processing ---
+# --- 8. Main Input & Response Processing ---
 if prompt := st.chat_input("Pro AI se kuch bhi pucho..."):
     # Render User Input
     st.session_state.messages.append({"role": "user", "content": prompt})
