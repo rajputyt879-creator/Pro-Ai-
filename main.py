@@ -12,7 +12,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
-# 2. Modern Dark Theme & Fixed Layout CSS
+# 2. Modern Dark Theme & Clean Layout CSS
 st.markdown(
     """
     <style>
@@ -28,7 +28,7 @@ st.markdown(
 
         .block-container {
             padding-top: 1.5rem !important;
-            padding-bottom: 6rem !important;
+            padding-bottom: 2rem !important;
             max-width: 800px !important;
         }
         
@@ -82,13 +82,7 @@ st.markdown(
             line-height: 1.6 !important;
         }
 
-        /* Always Visible Chat Input Box */
-        .stChatInput {
-            position: fixed !important;
-            bottom: 20px !important;
-            z-index: 999999 !important;
-        }
-
+        /* Clean Chat Input Styling */
         .stChatInput > div {
             border-radius: 14px !important;
             border: 1px solid rgba(255, 255, 255, 0.2) !important;
