@@ -1,15 +1,20 @@
 {
+  "name": "Pro AI",
   "short_name": "Pro AI",
-  "name": "Pro AI Assistant",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0d1117",
+  "theme_color": "#0d1117",
   "icons": [
     {
       "src": "https://raw.githubusercontent.com/rajputyt879-creator/Pro-AI-/main/pro_ai_neon_icon.png",
-      "sizes": "192x192 512x512",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://raw.githubusercontent.com/rajputyt879-creator/Pro-AI-/main/pro_ai_neon_icon.png",
+      "sizes": "512x512",
       "type": "image/png"
     }
-  ],
-  "start_url": "/",
-  "background_color": "#0e1117",
-  "theme_color": "#0e1117",
-  "display": "standalone"
+  ]
 }
