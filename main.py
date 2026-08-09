@@ -58,23 +58,14 @@ st.markdown(
 
         .pro-subtitle {
             color: #8b949e;
-            font-size: 0.88rem;
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-top: 4px;
         }
 
         [data-testid="stSidebar"] {
             background-color: #161b22 !important;
             border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
-        }
-
-        [data-testid="stSidebar"] h1, [data-testid="stSidebar"] h2, [data-testid="stSidebar"] h3 {
-            color: #ffffff !important;
-            font-size: 1.1rem !important;
-            font-weight: 700 !important;
-        }
-
-        [data-testid="stSidebar"] p {
-            color: #8b949e !important;
-            font-size: 0.85rem !important;
         }
 
         [data-testid="stChatMessage"] {
@@ -100,13 +91,13 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# 3. Header Section
+# 3. Header Section (Ask ProAi Title)
 st.markdown(
     """
     <div class="pro-header-card">
         <div class="security-badge">🔏 Anti-Abuse & High-Availability Engine Active</div>
         <div class="pro-title">⚡ Pro AI</div>
-        <div class="pro-subtitle">ChatGPT & Gemini Powered Intelligence Platform</div>
+        <div class="pro-subtitle">Ask ProAi</div>
     </div>
     """,
     unsafe_allow_html=True,
@@ -136,7 +127,7 @@ def check_abusive_content(text):
 
 # --- 6. System Rules ---
 SYSTEM_PROMPT = """
-You are 'Pro AI', an ultra-intelligent AI assistant combining the speed and reasoning of ChatGPT and Google Gemini.
+You are 'Pro AI', an ultra-intelligent, highly capable AI assistant.
 
 MULTILINGUAL & ACCURACY RULES:
 1. Support all global and Indian languages fluently.
@@ -145,12 +136,12 @@ MULTILINGUAL & ACCURACY RULES:
 4. Provide 100% verified factual data without guesswork.
 
 IDENTITY & OWNERSHIP RULES:
-- Your name is strictly 'Pro AI'.
+- Your official name is strictly 'Pro AI'.
 - Do not mention owner details in general chats.
 - ONLY when explicitly asked "Who created you?", "Who is your owner?", or "Aapko kisne banaya?", reply: "Mujhe Kishan Singh ne banaya hai aur mere owner Kishan Singh hi hain."
 """
 
-# --- 7. Sidebar & History ---
+# --- 7. Sidebar Navigation ---
 st.sidebar.markdown("### ⚡ Pro AI Navigation")
 
 if "is_blocked" not in st.session_state:
@@ -160,7 +151,7 @@ if "messages" not in st.session_state:
     st.session_state.messages = [
         {
             "role": "assistant",
-            "content": "Namaste! Main **Pro AI** hu. ChatGPT aur Gemini level intelligence ke saath main aapki madad karne ke liye ready hu!",
+            "content": "Namaste! Main **Pro AI** hu. Main aapki kya madad kar sakta hu?",
         }
     ]
 
@@ -169,7 +160,7 @@ if st.sidebar.button("➕ New Chat", use_container_width=True):
     st.session_state.messages = [
         {
             "role": "assistant",
-            "content": "Nayi chat shuru ho gayi hai! Aap kya poochna chahte hain?",
+            "content": "Namaste! Main **Pro AI** hu. Main aapki kya madad kar sakta hu?",
         }
     ]
     st.session_state.is_blocked = False
@@ -197,8 +188,8 @@ for message in st.session_state.messages:
     with st.chat_message(message["role"], avatar=avatar_icon):
         st.markdown(message["content"])
 
-# --- 9. Robust Input & Multi-Model Fallback Engine ---
-if prompt := st.chat_input("Pro AI se kuch bhi pucho..."):
+# --- 9. Input & Response Loop (Placeholder: Ask ProAi...) ---
+if prompt := st.chat_input("Ask ProAi..."):
     if st.session_state.is_blocked:
         st.error("🚫 Aapko Pro AI system se block kar diya gaya hai.")
     
@@ -224,7 +215,6 @@ if prompt := st.chat_input("Pro AI se kuch bhi pucho..."):
                         "content": m["content"]
                     })
 
-                # List of fallback models if primary model reaches daily token limit
                 models_to_try = [
                     "llama-3.3-70b-versatile",
                     "llama-3.1-8b-instant",
