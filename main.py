@@ -12,13 +12,13 @@ st.set_page_config(
     layout="centered",
 )
 
-# 2. ChatGPT Dark Theme & Sidebar Professional CSS
+# 2. Modern ChatGPT CSS
 st.markdown(
     """
     <style>
         .stApp {
             background-color: #0d1117 !important;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
         }
 
         .block-container {
@@ -27,7 +27,6 @@ st.markdown(
             max-width: 800px;
         }
         
-        /* Header Card */
         .pro-header-card {
             background: #161b22;
             border: 1px solid rgba(255, 255, 255, 0.1);
@@ -62,24 +61,6 @@ st.markdown(
             font-size: 0.88rem;
         }
 
-        /* Sidebar Custom Styling */
-        [data-testid="stSidebar"] {
-            background-color: #161b22 !important;
-            border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
-        }
-
-        [data-testid="stSidebar"] h1, [data-testid="stSidebar"] h2, [data-testid="stSidebar"] h3 {
-            color: #ffffff !important;
-            font-size: 1.1rem !important;
-            font-weight: 700 !important;
-        }
-
-        [data-testid="stSidebar"] p {
-            color: #8b949e !important;
-            font-size: 0.85rem !important;
-        }
-
-        /* Chat Bubbles */
         [data-testid="stChatMessage"] {
             background-color: #161b22 !important;
             border-radius: 14px !important;
@@ -107,9 +88,9 @@ st.markdown(
 st.markdown(
     """
     <div class="pro-header-card">
-        <div class="security-badge">🔏 Anti-Abuse Privacy Shield Active</div>
+        <div class="security-badge">🔒 Encrypted & Multi-Language Active</div>
         <div class="pro-title">⚡ Pro AI</div>
-        <div class="pro-subtitle">ChatGPT & Gemini Powered Intelligence Platform</div>
+        <div class="pro-subtitle">Advanced Intelligence Platform</div>
     </div>
     """,
     unsafe_allow_html=True,
@@ -124,122 +105,69 @@ if not GROQ_API_KEY:
 
 client = Groq(api_key=GROQ_API_KEY)
 
-# --- 5. Anti-Abuse Filter ---
-BAD_WORDS = [
-    "bhadwe", "gand", "gandu", "chutiya", "madarchod", "bhenchod", 
-    "gaali", "fuck", "bitch", "bastard", "harami", "bsdk"
-]
-
-def check_abusive_content(text):
-    text_lower = text.lower()
-    for word in BAD_WORDS:
-        if re.search(r'\b' + re.escape(word) + r'\b', text_lower):
-            return True
-    return False
-
-# --- 6. System Rules ---
+# --- 5. System Rules (Translation Fix, All Languages & India Awareness) ---
 SYSTEM_PROMPT = """
-You are 'Pro AI', an ultra-intelligent AI assistant combining the speed and reasoning of ChatGPT and Google Gemini.
+You are 'Pro AI', an ultra-intelligent, highly capable, multi-lingual AI assistant.
 
-MULTILINGUAL & ACCURACY RULES:
-1. Support all global and Indian languages fluently.
-2. When asked "Translate Hindi", translate input into Hindi.
-3. When asked "Translate English", translate input into English.
-4. Provide 100% verified factual data without guesswork.
+MULTILINGUAL & TRANSLATION RULES (CRITICAL):
+1. You MUST support ALL global and Indian languages fluently (Hindi, English, Hinglish, Marwari, Rajasthani, Tamil, Bengali, French, Spanish, etc.).
+2. DIRECT TRANSLATION DIRECTION RULE:
+   - When user asks "Translate Hindi", "Translate to Hindi", "Hindi Translation", or "Hindi me translate karo", convert the input INTO HINDI (हिंदी भाषा में अनुवाद करें).
+   - When user asks "Translate English", "Translate to English", or "English translation", convert the input INTO ENGLISH.
+   - Never confuse the translation target language!
+
+INDIA & GENERAL KNOWLEDGE:
+- You have comprehensive knowledge of India, current affairs, sports, culture, geography, and real-time updates.
+- GEOGRAPHY: Jaipur to Sardarshahar road distance is approx 245-255 km. Always provide 100% accurate factual data.
 
 IDENTITY & OWNERSHIP RULES:
-- Your name is strictly 'Pro AI'.
-- Do not mention owner details in general chats.
-- ONLY when explicitly asked "Who created you?", "Who is your owner?", or "Aapko kisne banaya?", reply: "Mujhe Kishan Singh ne banaya hai aur mere owner Kishan Singh hi hain."
+- Your name is Pro AI.
+- Speak naturally as Pro AI. DO NOT mention creator/owner name in routine chats.
+- ONLY when explicitly asked "Who created you?", "Who is your owner?", "Aapko kisne banaya?", or "Owner kaun hai?", reply clearly: "Mujhe Kishan Singh ne banaya hai aur mere owner Kishan Singh hi hain."
 """
 
-# --- 7. Sidebar & Interactive History ---
-st.sidebar.markdown("### ⚡ Pro AI Navigation")
-
-if "is_blocked" not in st.session_state:
-    st.session_state.is_blocked = False
-
+# --- 6. Session History ---
 if "messages" not in st.session_state:
     st.session_state.messages = [
         {
             "role": "assistant",
-            "content": "Namaste! Main **Pro AI** hu. ChatGPT aur Gemini level intelligence ke saath main aapki madad karne ke liye ready hu!",
+            "content": "Namaste! Main **Pro AI** hu. Main sabhi bhashaon (Languages) aur accurate jankari ke saath aapki madad karne ke liye ready hu!",
         }
     ]
 
-# New Chat Button
-if st.sidebar.button("➕ New Chat", use_container_width=True):
-    st.session_state.messages = [
-        {
-            "role": "assistant",
-            "content": "Nayi chat shuru ho gayi hai! Aap kya poochna chahte hain?",
-        }
-    ]
-    st.session_state.is_blocked = False
-    st.rerun()
-
-st.sidebar.markdown("---")
-st.sidebar.markdown("### 💬 Recent Prompts")
-
-# List User Messages as Clean Interactive Sidebar Items
-user_prompts = [m["content"] for m in st.session_state.messages if m["role"] == "user"]
-
-if user_prompts:
-    for idx, p in enumerate(reversed(user_prompts), 1):
-        preview_text = p[:28] + "..." if len(p) > 28 else p
-        st.sidebar.button(f"💬 {preview_text}", key=f"hist_{idx}", use_container_width=True)
-else:
-    st.sidebar.caption("Koi purani chat nahi hai. Naya sawal poochein!")
-
-st.sidebar.markdown("---")
-security_color = "🔴 BLOCKED" if st.session_state.is_blocked else "🟢 SECURE"
-st.sidebar.caption(f"Privacy Shield: **{security_color}**")
-
-# --- 8. Display Messages ---
+# Display Messages
 for message in st.session_state.messages:
-    avatar_icon = "⚡" if message["role"] == "assistant" else "👤"
-    with st.chat_message(message["role"], avatar=avatar_icon):
+    icon = "assistant" if message["role"] == "assistant" else "user"
+    with st.chat_message(message["role"], avatar=icon):
         st.markdown(message["content"])
 
-# --- 9. Input & Response Loop ---
+# --- 7. Input Engine ---
 if prompt := st.chat_input("Pro AI se kuch bhi pucho..."):
-    if st.session_state.is_blocked:
-        st.error("🚫 Aapko Pro AI system se block kar diya gaya hai.")
-    
-    elif check_abusive_content(prompt):
-        st.session_state.is_blocked = True
-        st.session_state.messages.append({"role": "user", "content": prompt})
-        
-        block_msg = "🚨 **Policy Violation:** Galat shabd ka use karne ki wajah se aapko BLOCK kar diya gaya hai."
-        st.session_state.messages.append({"role": "assistant", "content": block_msg})
-        st.rerun()
+    st.session_state.messages.append({"role": "user", "content": prompt})
+    with st.chat_message("user", avatar="user"):
+        st.markdown(prompt)
 
-    else:
-        st.session_state.messages.append({"role": "user", "content": prompt})
-        with st.chat_message("user", avatar="👤"):
-            st.markdown(prompt)
+    with st.chat_message("assistant", avatar="assistant"):
+        with st.spinner("Pro AI process kar raha hai..."):
+            try:
+                api_messages = [{"role": "system", "content": SYSTEM_PROMPT}]
+                for m in st.session_state.messages:
+                    api_messages.append({
+                        "role": "user" if m["role"] == "user" else "assistant",
+                        "content": m["content"]
+                    })
 
-        with st.chat_message("assistant", avatar="⚡"):
-            with st.spinner("Pro AI process kar raha hai..."):
-                try:
-                    api_messages = [{"role": "system", "content": SYSTEM_PROMPT}]
-                    for m in st.session_state.messages:
-                        api_messages.append({
-                            "role": "user" if m["role"] == "user" else "assistant",
-                            "content": m["content"]
-                        })
+                chat_completion = client.chat.completions.create(
+                    messages=api_messages,
+                    model="llama-3.3-70b-versatile",
+                    temperature=0.0,
+                    max_tokens=1024,
+                )
 
-                    chat_completion = client.chat.completions.create(
-                        messages=api_messages,
-                        model="llama-3.3-70b-versatile",
-                        temperature=0.0,
-                        max_tokens=1024,
-                    )
+                response = chat_completion.choices[0].message.content
+                st.markdown(response)
+                st.session_state.messages.append({"role": "assistant", "content": response})
 
-                    response = chat_completion.choices[0].message.content
-                    st.markdown(response)
-                    st.session_state.messages.append({"role": "assistant", "content": response})
-
-                except Exception as e:
-                    st.error(f"Error: {str(e)}")
-                    
+            except Exception as e:
+                st.error(f"Error: {str(e)}")
+                
