@@ -1,7 +1,6 @@
 import os
 import re
 import streamlit as st
-import streamlit.components.v1 as components
 from groq import Groq
 
 # 1. Page Configuration & Custom Icon
@@ -13,7 +12,7 @@ st.set_page_config(
     layout="centered",
 )
 
-# 2. Advanced Professional Styling & Keyboard Enter-Send Script
+# 2. Advanced Professional Custom Styling
 st.markdown(
     f"""
     <head>
@@ -24,7 +23,7 @@ st.markdown(
     <style>
         .block-container {{
             padding-top: 1.8rem !important;
-            padding-bottom: 4rem !important;
+            padding-bottom: 6rem !important;
             max-width: 800px;
         }}
         
@@ -70,44 +69,23 @@ st.markdown(
             margin-top: 4px;
         }}
 
-        /* Chat Input Area Styling */
-        .stChatInput > div {{
-            border-radius: 16px !important;
-            border: 1px solid rgba(255, 255, 255, 0.18) !important;
-            background-color: rgba(15, 23, 42, 0.85) !important;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3) !important;
-        }}
-
-        .stChatInput > div:focus-within {{
-            border-color: #00f2fe !important;
-            box-shadow: 0 0 15px rgba(0, 242, 254, 0.35) !important;
+        /* Custom Input Container at Bottom */
+        .input-box-container {{
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #0e1117;
+            padding: 10px 15px;
+            z-index: 999;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
         }}
     </style>
     """,
     unsafe_allow_html=True,
 )
 
-# 3. JS Script to hook Mobile Keyboard Enter button directly to Streamlit Send Button
-components.html(
-    """
-    <script>
-    const parentDoc = window.parent.document;
-    parentDoc.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter' && !e.shiftKey) {
-            const chatInput = parentDoc.querySelector('.stChatInput textarea');
-            const sendButton = parentDoc.querySelector('.stChatInput button');
-            if (chatInput && document.activeElement === chatInput && sendButton) {
-                sendButton.click();
-            }
-        }
-    });
-    </script>
-    """,
-    height=0,
-    width=0,
-)
-
-# 4. Professional Header Area
+# 3. Header Cover Area
 st.markdown(
     """
     <div class="pro-header-card">
@@ -119,7 +97,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# --- 5. API Key Setup ---
+# --- 4. API Key Setup ---
 GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
 
 if not GROQ_API_KEY:
@@ -130,7 +108,7 @@ if not GROQ_API_KEY:
 
 client = Groq(api_key=GROQ_API_KEY)
 
-# --- 6. System Instructions ---
+# --- 5. System Instructions ---
 SYSTEM_PROMPT = """
 You are 'Pro AI', an intelligent, polite, highly professional, and accurate AI assistant created and owned by Kishan Singh.
 
@@ -146,7 +124,7 @@ FACTUAL ACCURACY INSTRUCTIONS:
 - Keep tone polite, clean, respectful, and helpful in Hindi, Hinglish, or English.
 """
 
-# --- 7. Chat History Management ---
+# --- 6. Chat History Session ---
 if "messages" not in st.session_state:
     st.session_state.messages = [
         {
@@ -160,14 +138,25 @@ for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
-# --- 8. Main Input & Response Processing ---
-if prompt := st.chat_input("Pro AI se kuch bhi pucho..."):
-    # Render User Input
+# --- 7. Separate Input & Send Button Handling ---
+# Textarea allows Keyboard Enter (↵) to add a NEW LINE
+with st.container():
+    user_input = st.text_area(
+        "Pro AI",
+        placeholder="Pro AI se kuch bhi pucho...",
+        key="user_text",
+        height=80,
+        label_visibility="collapsed",
+    )
+    send_clicked = st.button("🚀 Send Message", use_container_width=True)
+
+if send_clicked and user_input.strip():
+    prompt = user_input.strip()
+
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
         st.markdown(prompt)
 
-    # Render Assistant Response
     with st.chat_message("assistant"):
         with st.spinner("Pro AI soch raha hai..."):
             try:
