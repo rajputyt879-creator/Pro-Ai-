@@ -1,5 +1,2 @@
 streamlit
-google-generativeai
-requests
-pillow
-gTTS
+groq
