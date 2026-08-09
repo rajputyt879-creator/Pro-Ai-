@@ -1,11 +1,10 @@
 import os
 import re
+import urllib.parse
 import streamlit as st
 from groq import Groq
 
 # 1. Page Configuration
-ICON_URL = "https://raw.githubusercontent.com/rajputyt879-creator/Pro-AI-/main/pro_ai_neon_icon.png"
-
 st.set_page_config(
     page_title="Pro AI",
     page_icon="⚡",
@@ -13,15 +12,18 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
-# 2. Modern Dark Theme CSS & Hide Sidebar Completely
+# 2. Modern Dark Theme & Ultra-Clear Text CSS
 st.markdown(
     """
     <style>
-        /* Hide Streamlit Sidebar Controls completely */
-        [data-testid="stSidebar"], [data-testid="collapsedControl"] {
+        /* Hide Unwanted Toolbar/Sidebar Elements */
+        [data-testid="stSidebar"], [data-testid="collapsedControl"], footer, #MainMenu, .stAppToolbar, [data-testid="stStatusWidget"], div[class*="viewerBadge"] {
             display: none !important;
+            visibility: hidden !important;
+            height: 0px !important;
         }
 
+        /* App Background */
         .stApp {
             background-color: #0d1117 !important;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
@@ -29,10 +31,11 @@ st.markdown(
 
         .block-container {
             padding-top: 1.5rem !important;
-            padding-bottom: 5rem !important;
+            padding-bottom: 3rem !important;
             max-width: 800px;
         }
         
+        /* Header Card */
         .pro-header-card {
             background: #161b22;
             border: 1px solid rgba(255, 255, 255, 0.1);
@@ -46,13 +49,13 @@ st.markdown(
         .pro-title {
             font-size: 2.2rem;
             font-weight: 800;
-            color: #ffffff;
+            color: #ffffff !important;
             margin-bottom: 4px;
         }
 
         .security-badge {
             font-size: 0.75rem;
-            color: #10a37f;
+            color: #10a37f !important;
             background-color: rgba(16, 163, 127, 0.15);
             padding: 4px 12px;
             border-radius: 20px;
@@ -63,24 +66,42 @@ st.markdown(
         }
 
         .pro-subtitle {
-            color: #8b949e;
+            color: #c9d1d9 !important;
             font-size: 1.1rem;
             font-weight: 700;
             margin-top: 4px;
         }
 
+        /* Chat Message Text High-Contrast Fix */
         [data-testid="stChatMessage"] {
             background-color: #161b22 !important;
             border-radius: 14px !important;
-            border: 1px solid rgba(255, 255, 255, 0.08) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
             margin-bottom: 10px !important;
             padding: 12px 16px !important;
+            color: #ffffff !important;
         }
 
+        [data-testid="stChatMessage"] p, [data-testid="stChatMessage"] div, [data-testid="stChatMessage"] span {
+            color: #f0f6fc !important;
+            font-size: 1rem !important;
+            line-height: 1.6 !important;
+        }
+
+        /* Input Box Text & Placeholder Fix */
         .stChatInput > div {
             border-radius: 14px !important;
-            border: 1px solid rgba(255, 255, 255, 0.15) !important;
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
             background-color: #161b22 !important;
+        }
+
+        .stChatInput textarea {
+            color: #ffffff !important;
+            font-size: 1rem !important;
+        }
+
+        .stChatInput textarea::placeholder {
+            color: #8b949e !important;
         }
 
         .stChatInput > div:focus-within {
@@ -92,7 +113,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# 3. Header Section (Ask ProAi Title)
+# 3. Header Card
 st.markdown(
     """
     <div class="pro-header-card">
@@ -108,16 +129,13 @@ st.markdown(
 GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
 
 if not GROQ_API_KEY:
-    st.error("❌ GROQ_API_KEY nahi mili! Kripya Streamlit Secrets me GROQ_API_KEY add karein.")
+    st.error("❌ GROQ_API_KEY nahi mili! Streamlit secrets me key add karein.")
     st.stop()
 
 client = Groq(api_key=GROQ_API_KEY)
 
-# --- 5. Anti-Abuse Filter ---
-BAD_WORDS = [
-    "bhadwe", "gand", "gandu", "chutiya", "madarchod", "bhenchod", 
-    "gaali", "fuck", "bitch", "bastard", "harami", "bsdk"
-]
+# --- 5. Anti-Abuse Privacy Shield ---
+BAD_WORDS = ["bhadwe", "gand", "gandu", "chutiya", "madarchod", "bhenchod", "fuck", "bitch", "harami"]
 
 def check_abusive_content(text):
     text_lower = text.lower()
@@ -126,23 +144,13 @@ def check_abusive_content(text):
             return True
     return False
 
-# --- 6. System Rules ---
+# --- 6. System Prompt ---
 SYSTEM_PROMPT = """
-You are 'Pro AI', an ultra-intelligent, highly capable AI assistant.
-
-MULTILINGUAL & ACCURACY RULES:
-1. Support all global and Indian languages fluently.
-2. When asked "Translate Hindi", translate input into Hindi.
-3. When asked "Translate English", translate input into English.
-4. Provide 100% verified factual data without guesswork.
-
-IDENTITY & OWNERSHIP RULES:
-- Your official name is strictly 'Pro AI'.
-- Do not mention owner details in general chats.
-- ONLY when explicitly asked "Who created you?", "Who is your owner?", or "Aapko kisne banaya?", reply: "Mujhe Kishan Singh ne banaya hai aur mere owner Kishan Singh hi hain."
+You are 'Pro AI', an ultra-intelligent, highly capable AI assistant created to help users with text and images.
+Support all languages fluently. Provide clear, direct, and accurate responses.
 """
 
-# --- 7. Session Management ---
+# --- 7. Session Setup ---
 if "is_blocked" not in st.session_state:
     st.session_state.is_blocked = False
 
@@ -154,13 +162,15 @@ if "messages" not in st.session_state:
         }
     ]
 
-# --- 8. Display Messages ---
+# Display Chat History
 for message in st.session_state.messages:
     avatar_icon = "⚡" if message["role"] == "assistant" else "👤"
     with st.chat_message(message["role"], avatar=avatar_icon):
         st.markdown(message["content"])
+        if "image_url" in message:
+            st.image(message["image_url"], caption="Generated by Pro AI", use_container_width=True)
 
-# --- 9. Input & Response Engine ---
+# --- 8. Input & Engine Loop ---
 if prompt := st.chat_input("Ask ProAi..."):
     if st.session_state.is_blocked:
         st.error("🚫 Aapko Pro AI system se block kar diya gaya hai.")
@@ -179,39 +189,58 @@ if prompt := st.chat_input("Ask ProAi..."):
             st.markdown(prompt)
 
         with st.chat_message("assistant", avatar="⚡"):
-            with st.spinner("Pro AI process kar raha hai..."):
-                api_messages = [{"role": "system", "content": SYSTEM_PROMPT}]
-                for m in st.session_state.messages:
-                    api_messages.append({
-                        "role": "user" if m["role"] == "user" else "assistant",
-                        "content": m["content"]
-                    })
+            prompt_lower = prompt.lower()
 
-                models_to_try = [
-                    "llama-3.3-70b-versatile",
-                    "llama-3.1-8b-instant",
-                    "mixtral-8x7b-32768"
-                ]
-
-                response_text = None
-
-                for model_name in models_to_try:
+            # --- FREE IMAGE GENERATION ---
+            if any(kw in prompt_lower for kw in ["image", "photo", "pic", "picture", "draw", "banao"]):
+                with st.spinner("🎨 Pro AI Free HD Image Render kar raha hai..."):
                     try:
-                        chat_completion = client.chat.completions.create(
-                            messages=api_messages,
-                            model=model_name,
-                            temperature=0.0,
-                            max_tokens=1024,
-                        )
-                        response_text = chat_completion.choices[0].message.content
-                        if response_text:
-                            break
-                    except Exception:
-                        continue
+                        clean_prompt = re.sub(r'(generate|create|make|draw|banao|photo|image|of|a|an)\s*', '', prompt_lower, flags=re.IGNORECASE).strip()
+                        if not clean_prompt:
+                            clean_prompt = prompt
+                        
+                        encoded_prompt = urllib.parse.quote(clean_prompt)
+                        image_url = f"https://image.pollinations.ai/prompt/{encoded_prompt}?width=1024&height=1024&seed=42&nologo=true"
 
-                if response_text:
-                    st.markdown(response_text)
-                    st.session_state.messages.append({"role": "assistant", "content": response_text})
-                else:
-                    st.error("Engine abhi busy hai, kripya 1 minute baad dobara try karein.")
-                    
+                        msg_text = f"✨ **Aapki AI Image ready hai:** *\"{clean_prompt}\"*"
+                        st.markdown(msg_text)
+                        st.image(image_url, caption="Generated by Pro AI", use_container_width=True)
+
+                        st.session_state.messages.append({
+                            "role": "assistant",
+                            "content": msg_text,
+                            "image_url": image_url
+                        })
+                    except Exception as e:
+                        st.error(f"Image Error: {str(e)}")
+
+            # --- STANDARD TEXT CHAT ENGINE ---
+            else:
+                with st.spinner("Pro AI process kar raha hai..."):
+                    api_messages = [{"role": "system", "content": SYSTEM_PROMPT}]
+                    for m in st.session_state.messages:
+                        api_messages.append({"role": "user" if m["role"] == "user" else "assistant", "content": m["content"]})
+
+                    models_to_try = ["llama-3.3-70b-versatile", "llama-3.1-8b-instant", "mixtral-8x7b-32768"]
+                    response_text = None
+
+                    for model_name in models_to_try:
+                        try:
+                            chat_completion = client.chat.completions.create(
+                                messages=api_messages,
+                                model=model_name,
+                                temperature=0.0,
+                                max_tokens=1024,
+                            )
+                            response_text = chat_completion.choices[0].message.content
+                            if response_text:
+                                break
+                        except Exception:
+                            continue
+
+                    if response_text:
+                        st.markdown(response_text)
+                        st.session_state.messages.append({"role": "assistant", "content": response_text})
+                    else:
+                        st.error("Engine busy hai, kripya 1 minute baad try karein.")
+                        
