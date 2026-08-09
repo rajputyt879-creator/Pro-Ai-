@@ -12,7 +12,7 @@ st.set_page_config(
     layout="centered",
 )
 
-# 2. ChatGPT Dark Theme & Sidebar CSS
+# 2. Strict CSS Forced Replacements
 st.markdown(
     """
     <style>
@@ -58,25 +58,14 @@ st.markdown(
 
         .pro-subtitle {
             color: #8b949e;
-            font-size: 1rem;
-            font-weight: 600;
+            font-size: 1.1rem;
+            font-weight: 700;
             margin-top: 4px;
         }
 
         [data-testid="stSidebar"] {
             background-color: #161b22 !important;
             border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
-        }
-
-        [data-testid="stSidebar"] h1, [data-testid="stSidebar"] h2, [data-testid="stSidebar"] h3 {
-            color: #ffffff !important;
-            font-size: 1.1rem !important;
-            font-weight: 700 !important;
-        }
-
-        [data-testid="stSidebar"] p {
-            color: #8b949e !important;
-            font-size: 0.85rem !important;
         }
 
         [data-testid="stChatMessage"] {
@@ -102,7 +91,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# 3. Header Section
+# 3. Forced UI Header Text
 st.markdown(
     """
     <div class="pro-header-card">
@@ -152,7 +141,7 @@ IDENTITY & OWNERSHIP RULES:
 - ONLY when explicitly asked "Who created you?", "Who is your owner?", or "Aapko kisne banaya?", reply: "Mujhe Kishan Singh ne banaya hai aur mere owner Kishan Singh hi hain."
 """
 
-# --- 7. Sidebar & History ---
+# --- 7. Sidebar Navigation ---
 st.sidebar.markdown("### ⚡ Pro AI Navigation")
 
 if "is_blocked" not in st.session_state:
@@ -199,7 +188,7 @@ for message in st.session_state.messages:
     with st.chat_message(message["role"], avatar=avatar_icon):
         st.markdown(message["content"])
 
-# --- 9. Input & Response Loop (Placeholder Updated) ---
+# --- 9. Input & Response Loop ---
 if prompt := st.chat_input("Ask ProAi..."):
     if st.session_state.is_blocked:
         st.error("🚫 Aapko Pro AI system se block kar diya gaya hai.")
