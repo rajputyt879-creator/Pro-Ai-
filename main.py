@@ -4,7 +4,7 @@ import streamlit as st
 import streamlit.components.v1 as components
 from groq import Groq
 
-# 1. Page Configuration & Custom Neon Logo URL
+# 1. Custom Neon Logo URL
 ICON_URL = "https://raw.githubusercontent.com/rajputyt879-creator/Pro-AI-/main/pro_ai_neon_icon.png"
 
 st.set_page_config(
@@ -13,7 +13,7 @@ st.set_page_config(
     layout="centered",
 )
 
-# 2. Advanced 3D & 4K Styling (CSS Injection)
+# 2. ChatGPT-Style Clean UI Styling (CSS)
 st.markdown(
     f"""
     <head>
@@ -23,96 +23,81 @@ st.markdown(
     </head>
     <style>
         .stApp {{
-            background: radial-gradient(circle at 50% 10%, #1a1f2c 0%, #0d1117 100%) !important;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+            background-color: #0d1117 !important;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
         }}
 
         .block-container {{
             padding-top: 2rem !important;
             padding-bottom: 5rem !important;
-            max-width: 820px;
+            max-width: 800px;
         }}
         
-        /* 3D Glassmorphism Header */
+        /* ChatGPT Cover Style Header */
         .pro-header-card {{
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0.02) 100%);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-top: 1px solid rgba(255, 255, 255, 0.3);
-            border-left: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 24px;
-            padding: 28px 22px;
+            background: rgba(22, 27, 34, 0.8);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 24px 20px;
             text-align: center;
-            margin-bottom: 28px;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            margin-bottom: 24px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
         }}
 
-        /* 4K Glowing Title */
         .pro-title {{
-            font-size: 2.6rem;
-            font-weight: 900;
-            background: linear-gradient(90deg, #00f2fe 0%, #4facfe 50%, #00c6ff 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 8px;
-            letter-spacing: -0.8px;
-            filter: drop-shadow(0px 4px 12px rgba(0, 242, 254, 0.35));
+            font-size: 2.4rem;
+            font-weight: 800;
+            color: #ffffff;
+            margin-bottom: 6px;
+            letter-spacing: -0.5px;
         }}
 
-        /* Security Badge */
         .security-badge {{
-            font-size: 0.8rem;
-            color: #00ff88;
-            background: linear-gradient(135deg, rgba(0, 255, 136, 0.15) 0%, rgba(0, 255, 136, 0.05) 100%);
-            padding: 6px 16px;
-            border-radius: 30px;
-            border: 1px solid rgba(0, 255, 136, 0.4);
-            box-shadow: 0 0 15px rgba(0, 255, 136, 0.2);
+            font-size: 0.78rem;
+            color: #10a37f;
+            background-color: rgba(16, 163, 127, 0.12);
+            padding: 4px 14px;
+            border-radius: 20px;
+            border: 1px solid rgba(16, 163, 127, 0.3);
             display: inline-block;
-            margin-bottom: 12px;
-            font-weight: 700;
-            letter-spacing: 0.4px;
-            text-transform: uppercase;
+            margin-bottom: 10px;
+            font-weight: 600;
         }}
 
         .pro-subtitle {{
-            color: #cbd5e1;
-            font-size: 0.95rem;
-            font-weight: 500;
-            margin-top: 6px;
+            color: #8b949e;
+            font-size: 0.9rem;
+            margin-top: 4px;
         }}
 
-        /* Chat Bubbles */
+        /* ChatGPT Style Chat Bubbles */
         [data-testid="stChatMessage"] {{
-            background: linear-gradient(145deg, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.8) 100%) !important;
-            border-radius: 20px !important;
-            border: 1px solid rgba(255, 255, 255, 0.08) !important;
-            border-top: 1px solid rgba(255, 255, 255, 0.15) !important;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
-            margin-bottom: 14px !important;
+            background: #161b22 !important;
+            border-radius: 16px !important;
+            border: 1px solid rgba(255, 255, 255, 0.05) !important;
+            margin-bottom: 12px !important;
             padding: 14px 18px !important;
         }}
 
-        /* Chat Input Styling */
+        /* Input Bar */
         .stChatInput > div {{
-            border-radius: 20px !important;
-            border: 1px solid rgba(255, 255, 255, 0.2) !important;
-            border-top: 1px solid rgba(255, 255, 255, 0.3) !important;
-            background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.9) 100%) !important;
-            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
+            border-radius: 16px !important;
+            border: 1px solid rgba(255, 255, 255, 0.15) !important;
+            background-color: #161b22 !important;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3) !important;
         }}
 
         .stChatInput > div:focus-within {{
-            border-color: #00f2fe !important;
-            box-shadow: 0 0 25px rgba(0, 242, 254, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+            border-color: #10a37f !important;
+            box-shadow: 0 0 12px rgba(16, 163, 127, 0.3) !important;
         }}
     </style>
     """,
     unsafe_allow_html=True,
 )
 
-# 3. JavaScript Handler
+# 3. JavaScript Handler for Keyboard Enter
 components.html(
     """
     <script>
@@ -136,9 +121,9 @@ components.html(
 st.markdown(
     """
     <div class="pro-header-card">
-        <div class="security-badge">🔒 End-to-End Encrypted & Verified 4K Accuracy</div>
+        <div class="security-badge">🔒 Encrypted & Verified Accuracy Mode</div>
         <div class="pro-title">⚡ Pro AI</div>
-        <div class="pro-subtitle">Created & Owned by <b>Kishan Singh</b> | Advanced Intelligence Platform</div>
+        <div class="pro-subtitle">Advanced Intelligence Platform</div>
     </div>
     """,
     unsafe_allow_html=True,
@@ -148,24 +133,23 @@ st.markdown(
 GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
 
 if not GROQ_API_KEY:
-    st.error(
-        "❌ GROQ_API_KEY nahi mili! Kripya Streamlit Secrets mein GROQ_API_KEY add karein."
-    )
+    st.error("❌ GROQ_API_KEY nahi mili! Kripya Streamlit Secrets mein GROQ_API_KEY add karein.")
     st.stop()
 
 client = Groq(api_key=GROQ_API_KEY)
 
-# --- 6. System Instructions ---
+# --- 6. Strict System Instructions (Identity Rules) ---
 SYSTEM_PROMPT = """
-You are 'Pro AI', an intelligent, polite, highly professional, and accurate AI assistant created and owned by Kishan Singh.
+You are 'Pro AI', an intelligent, polite, highly professional, and accurate AI assistant. Your name is strictly 'Pro AI'.
 
-CRITICAL IDENTITY & OWNERSHIP INSTRUCTIONS:
-- You were created, developed, and owned by Kishan Singh.
-- When asked "Who created you?", "Who is your owner?", "Aapko kisne banaya?", "Owner kaun hai?", or any creator query, reply clearly and proudly: "Mujhe Kishan Singh ne banaya hai aur mere owner Kishan Singh hi hain."
+IDENTITY & OWNERSHIP RULES:
+- Your name is Pro AI.
+- In general, normal conversations, greetings, or answering queries, DO NOT mention your creator or owner's name. Speak normally as Pro AI.
+- ONLY when a user explicitly asks about your creator, developer, or owner (e.g., "Aapko kisne banaya?", "Aapka owner kaun hai?", "Who created you?", "Who is your developer?"), you must state clearly and respectfully: "Mujhe Kishan Singh ne banaya hai aur mere owner Kishan Singh hi hain."
 
 FACTUAL ACCURACY INSTRUCTIONS:
 - Always provide 100% accurate, verified facts, calculations, and route/distance details.
-- Keep tone polite, clean, respectful, and helpful in Hindi, Hinglish, or English.
+- Maintain a clean, respectful, helpful tone in Hindi, Hinglish, or English.
 """
 
 # --- 7. Chat History Session ---
@@ -173,11 +157,11 @@ if "messages" not in st.session_state:
     st.session_state.messages = [
         {
             "role": "assistant",
-            "content": "Radhe Radhe! Main **Pro AI** hu. Mujhe **Kishan Singh** ne banaya hai. Main aapke kisi bhi sawal ka sahi aur accurate jawab dene ke liye ready hu!",
+            "content": "Namaste! Main **Pro AI** hu. Main aapki kya madad kar sakta hu?",
         }
     ]
 
-# Display Chat History with Custom Avatars (PRO AI Neon Logo for Assistant)
+# Display Chat History with ChatGPT Style Clean Avatars
 for message in st.session_state.messages:
     avatar_icon = ICON_URL if message["role"] == "assistant" else "👤"
     with st.chat_message(message["role"], avatar=avatar_icon):
@@ -196,9 +180,7 @@ if prompt := st.chat_input("Pro AI se kuch bhi pucho..."):
                     {"role": "system", "content": SYSTEM_PROMPT}
                 ] + [
                     {
-                        "role": (
-                            "user" if m["role"] == "user" else "assistant"
-                        ),
+                        "role": ("user" if m["role"] == "user" else "assistant"),
                         "content": m["content"],
                     }
                     for m in st.session_state.messages
