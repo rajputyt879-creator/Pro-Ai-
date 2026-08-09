@@ -12,7 +12,7 @@ st.set_page_config(
     layout="centered",
 )
 
-# 2. ChatGPT Dark Theme CSS
+# 2. ChatGPT Dark Theme & Sidebar Professional CSS
 st.markdown(
     """
     <style>
@@ -27,6 +27,7 @@ st.markdown(
             max-width: 800px;
         }
         
+        /* Header Card */
         .pro-header-card {
             background: #161b22;
             border: 1px solid rgba(255, 255, 255, 0.1);
@@ -61,6 +62,24 @@ st.markdown(
             font-size: 0.88rem;
         }
 
+        /* Sidebar Custom Styling */
+        [data-testid="stSidebar"] {
+            background-color: #161b22 !important;
+            border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
+        }
+
+        [data-testid="stSidebar"] h1, [data-testid="stSidebar"] h2, [data-testid="stSidebar"] h3 {
+            color: #ffffff !important;
+            font-size: 1.1rem !important;
+            font-weight: 700 !important;
+        }
+
+        [data-testid="stSidebar"] p {
+            color: #8b949e !important;
+            font-size: 0.85rem !important;
+        }
+
+        /* Chat Bubbles */
         [data-testid="stChatMessage"] {
             background-color: #161b22 !important;
             border-radius: 14px !important;
@@ -105,7 +124,7 @@ if not GROQ_API_KEY:
 
 client = Groq(api_key=GROQ_API_KEY)
 
-# --- 5. Bad Words Filter ---
+# --- 5. Anti-Abuse Filter ---
 BAD_WORDS = [
     "bhadwe", "gand", "gandu", "chutiya", "madarchod", "bhenchod", 
     "gaali", "fuck", "bitch", "bastard", "harami", "bsdk"
@@ -118,7 +137,7 @@ def check_abusive_content(text):
             return True
     return False
 
-# --- 6. System Instructions ---
+# --- 6. System Rules ---
 SYSTEM_PROMPT = """
 You are 'Pro AI', an ultra-intelligent AI assistant combining the speed and reasoning of ChatGPT and Google Gemini.
 
@@ -134,8 +153,8 @@ IDENTITY & OWNERSHIP RULES:
 - ONLY when explicitly asked "Who created you?", "Who is your owner?", or "Aapko kisne banaya?", reply: "Mujhe Kishan Singh ne banaya hai aur mere owner Kishan Singh hi hain."
 """
 
-# --- 7. Sidebar Controls & Clickable History ---
-st.sidebar.title("⚡ Pro AI Controls")
+# --- 7. Sidebar & Interactive History ---
+st.sidebar.markdown("### ⚡ Pro AI Navigation")
 
 if "is_blocked" not in st.session_state:
     st.session_state.is_blocked = False
@@ -149,7 +168,7 @@ if "messages" not in st.session_state:
     ]
 
 # New Chat Button
-if st.sidebar.button("➕ New Chat / Clear History", use_container_width=True):
+if st.sidebar.button("➕ New Chat", use_container_width=True):
     st.session_state.messages = [
         {
             "role": "assistant",
@@ -160,21 +179,21 @@ if st.sidebar.button("➕ New Chat / Clear History", use_container_width=True):
     st.rerun()
 
 st.sidebar.markdown("---")
-st.sidebar.subheader("💬 Active Chat History")
+st.sidebar.markdown("### 💬 Recent Prompts")
 
-# Interactive Chat History Items in Sidebar
-user_msgs = [m["content"] for m in st.session_state.messages if m["role"] == "user"]
+# List User Messages as Clean Interactive Sidebar Items
+user_prompts = [m["content"] for m in st.session_state.messages if m["role"] == "user"]
 
-if user_msgs:
-    for idx, msg in enumerate(user_msgs, 1):
-        # Shorten message preview
-        preview = msg[:25] + "..." if len(msg) > 25 else msg
-        st.sidebar.write(f"**{idx}.** {preview}")
+if user_prompts:
+    for idx, p in enumerate(reversed(user_prompts), 1):
+        preview_text = p[:28] + "..." if len(p) > 28 else p
+        st.sidebar.button(f"💬 {preview_text}", key=f"hist_{idx}", use_container_width=True)
 else:
-    st.sidebar.caption("Abhi koi purani baat nahi hai. Sawal poochna shuru karein!")
+    st.sidebar.caption("Koi purani chat nahi hai. Naya sawal poochein!")
 
 st.sidebar.markdown("---")
-st.sidebar.caption(f"Security Status: {'🚫 BLOCKED' if st.session_state.is_blocked else '🟢 SECURE'}")
+security_color = "🔴 BLOCKED" if st.session_state.is_blocked else "🟢 SECURE"
+st.sidebar.caption(f"Privacy Shield: **{security_color}**")
 
 # --- 8. Display Messages ---
 for message in st.session_state.messages:
@@ -182,7 +201,7 @@ for message in st.session_state.messages:
     with st.chat_message(message["role"], avatar=avatar_icon):
         st.markdown(message["content"])
 
-# --- 9. Input & Processing ---
+# --- 9. Input & Response Loop ---
 if prompt := st.chat_input("Pro AI se kuch bhi pucho..."):
     if st.session_state.is_blocked:
         st.error("🚫 Aapko Pro AI system se block kar diya gaya hai.")
@@ -223,4 +242,4 @@ if prompt := st.chat_input("Pro AI se kuch bhi pucho..."):
 
                 except Exception as e:
                     st.error(f"Error: {str(e)}")
-                                          
+                    
