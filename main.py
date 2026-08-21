@@ -1,5 +1,4 @@
 import os
-import re
 import time
 import urllib.parse
 import streamlit as st
@@ -15,31 +14,37 @@ st.markdown("""
         .stApp { background-color: #0d1117 !important; color: #ffffff !important; }
         .block-container { padding-top: 1rem !important; padding-bottom: 5rem !important; max-width: 800px !important; }
         .pro-header { background: #161b22; padding: 15px; border-radius: 12px; text-align: center; margin-bottom: 20px; border: 1px solid #30363d; }
-        [data-testid="stChatMessage"] { background-color: #161b22 !important; border: 1px solid #30363d !important; border-radius: 12px !important; }
+        [data-testid="stChatMessage"] { background-color: #161b22 !important; border: 1px solid #30363d !important; border-radius: 12px !important; color: white !important; }
         .stChatInput > div { border-radius: 12px !important; background-color: #161b22 !important; border: 1px solid #30363d !important; }
+        .stChatInput textarea { color: white !important; }
     </style>
 """, unsafe_allow_html=True)
 
 # 3. Header
-st.markdown('<div class="pro-header"><h2 style="color:white">⚡ Pro AI</h2><p style="color:#8b949e">System: Online & Stable</p></div>', unsafe_allow_html=True)
+st.markdown('<div class="pro-header"><h2 style="color:white">⚡ Pro AI</h2><p style="color:#8b949e">Stable Engine: Online</p></div>', unsafe_allow_html=True)
 
-# 4. API Client with Error Handling
+# 4. API Client
 GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
-if not GROQ_API_KEY:
-    st.error("API Key missing!")
-    st.stop()
 client = Groq(api_key=GROQ_API_KEY)
 
-# 5. Logic to generate response with Fallbacks
+# 5. Fallback Logic with Retry
 def get_ai_response(messages):
-    models = ["llama-3.1-8b-instant", "gemma2-9b-it", "llama3-70b-8192"]
+    models = ["llama-3.1-8b-instant", "llama3-70b-8192", "gemma2-9b-it"]
     for model in models:
-        try:
-            chat = client.chat.completions.create(messages=messages, model=model, temperature=0.7, max_tokens=1024)
-            return chat.choices[0].message.content
-        except Exception:
-            continue # Try next model if one fails
-    return "❌ Server busy hai, kripya 5 seconds baad dobara puchein."
+        # Try each model 2 times
+        for attempt in range(2):
+            try:
+                chat = client.chat.completions.create(
+                    messages=messages, 
+                    model=model, 
+                    temperature=0.7, 
+                    max_tokens=1024
+                )
+                return chat.choices[0].message.content
+            except Exception:
+                time.sleep(1) # Wait 1 sec before retrying
+                continue 
+    return "💡 Engine busy hai, kripya 5 seconds baad phir se message bhejein."
 
 # 6. Session Logic
 if "messages" not in st.session_state:
@@ -57,17 +62,14 @@ if prompt := st.chat_input("Ask ProAi..."):
     with st.chat_message("user", avatar="👤"): st.markdown(prompt)
     
     with st.chat_message("assistant", avatar="⚡"):
-        # Image Generation Logic
         if any(kw in prompt.lower() for kw in ["image", "photo", "pic", "banao"]):
             encoded = urllib.parse.quote(prompt)
             url = f"https://image.pollinations.ai/prompt/{encoded}?width=1024&height=1024&nologo=true"
             st.image(url, use_column_width=True)
             st.session_state.messages.append({"role": "assistant", "content": "Ye rahi image:", "image_url": url})
         else:
-            # Robust Text Logic
             with st.spinner("Processing..."):
-                formatted_msgs = [{"role": m["role"], "content": m["content"]} for m in st.session_state.messages]
-                response = get_ai_response(formatted_msgs)
+                response = get_ai_response([{"role": m["role"], "content": m["content"]} for m in st.session_state.messages])
                 st.markdown(response)
                 st.session_state.messages.append({"role": "assistant", "content": response})
                 
