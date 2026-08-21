@@ -11,201 +11,74 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
-# 2. Modern Dark Theme & Ultra-Clear Text CSS
+# 2. CSS - Responsive Layout & High-Contrast Text
 st.markdown(
     """
     <style>
-        [data-testid="stSidebar"], [data-testid="collapsedControl"], footer, header, #MainMenu {
-            display: none !important;
-        }
-
-        .stApp {
-            background-color: #0d1117 !important;
-            color: #ffffff !important;
-        }
-
-        .block-container {
-            padding-top: 1.5rem !important;
-            padding-bottom: 5rem !important;
-            max-width: 800px !important;
-        }
+        [data-testid="stSidebar"], [data-testid="collapsedControl"], footer, header, #MainMenu { display: none !important; }
+        .stApp { background-color: #0d1117 !important; color: #ffffff !important; }
+        .block-container { padding-top: 1rem !important; padding-bottom: 5rem !important; max-width: 800px !important; }
         
-        .pro-header-card {
-            background: #161b22;
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 16px;
-            padding: 20px;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .pro-title {
-            font-size: 2.2rem;
-            font-weight: 800;
-            color: #ffffff !important;
-            margin-bottom: 4px;
-        }
-
-        .security-badge {
-            font-size: 0.75rem;
-            color: #10a37f !important;
-            background-color: rgba(16, 163, 127, 0.15);
-            padding: 4px 12px;
-            border-radius: 20px;
-            border: 1px solid rgba(16, 163, 127, 0.3);
-            display: inline-block;
-            margin-bottom: 8px;
-            font-weight: 600;
-        }
-
-        .pro-subtitle {
-            color: #c9d1d9 !important;
-            font-size: 1.1rem;
-            font-weight: 700;
-            margin-top: 4px;
-        }
-
-        /* Chat Messages */
-        [data-testid="stChatMessage"] {
-            background-color: #161b22 !important;
-            border-radius: 14px !important;
-            border: 1px solid rgba(255, 255, 255, 0.12) !important;
-            margin-bottom: 10px !important;
-            padding: 12px 16px !important;
-        }
-
-        [data-testid="stChatMessage"] p, [data-testid="stChatMessage"] div, [data-testid="stChatMessage"] span {
-            color: #ffffff !important;
-            font-size: 1.05rem !important;
-            line-height: 1.6 !important;
-        }
-
-        /* Input Box */
-        .stChatInput > div {
-            border-radius: 14px !important;
-            border: 1px solid rgba(255, 255, 255, 0.25) !important;
-            background-color: #161b22 !important;
-        }
-
-        .stChatInput textarea {
-            color: #ffffff !important;
-            font-size: 1rem !important;
-        }
-
-        .stChatInput textarea::placeholder {
-            color: #8b949e !important;
-        }
+        /* Mobile-Friendly Table Fix */
+        table { width: 100% !important; table-layout: fixed !important; }
+        th, td { word-wrap: break-word !important; white-space: normal !important; overflow-wrap: break-word !important; }
+        
+        .pro-header-card { background: #161b22; border: 1px solid #30363d; border-radius: 12px; padding: 15px; text-align: center; margin-bottom: 15px; }
+        [data-testid="stChatMessage"] { background-color: #161b22 !important; border: 1px solid #30363d !important; border-radius: 12px !important; }
+        [data-testid="stChatMessage"] p, [data-testid="stChatMessage"] div { color: #ffffff !important; font-size: 1.05rem !important; }
+        .stChatInput > div { border-radius: 12px !important; background-color: #161b22 !important; border: 1px solid #30363d !important; }
+        .stChatInput textarea { color: white !important; }
     </style>
     """,
     unsafe_allow_html=True,
 )
 
-# 3. Header Card
-st.markdown(
-    """
-    <div class="pro-header-card">
-        <div class="security-badge">🔏 Enterprise Auto-Model Engine Active</div>
-        <div class="pro-title">⚡ Pro AI</div>
-        <div class="pro-subtitle">Ask ProAi</div>
-    </div>
-    """,
-    unsafe_allow_html=True,
-)
+# 3. Header
+st.markdown('<div class="pro-header-card"><h2 style="color:white">⚡ Pro AI</h2><p style="color:#8b949e">Accuracy: High | Mode: Stable</p></div>', unsafe_allow_html=True)
 
-# --- 4. API Client ---
+# 4. API Client
 GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
-
-if not GROQ_API_KEY:
-    st.error("❌ GROQ_API_KEY nahi mili! Streamlit Secrets me add karein.")
-    st.stop()
-
+if not GROQ_API_KEY: st.error("API Key missing!")
 client = Groq(api_key=GROQ_API_KEY)
 
-# --- 5. Session Setup ---
+# 5. Session Setup
 if "messages" not in st.session_state:
-    st.session_state.messages = [
-        {"role": "assistant", "content": "Namaste! Main **Pro AI** hu. Main aapki kya madad kar sakta hu?"}
-    ]
+    st.session_state.messages = [{"role": "assistant", "content": "Namaste! Main Pro AI hu. Main aapki kya madad kar sakta hu?"}]
 
-# Render Messages
 for message in st.session_state.messages:
-    avatar_icon = "⚡" if message["role"] == "assistant" else "👤"
-    with st.chat_message(message["role"], avatar=avatar_icon):
+    avatar = "⚡" if message["role"] == "assistant" else "👤"
+    with st.chat_message(message["role"], avatar=avatar):
         st.markdown(message["content"])
-        if "image_url" in message:
-            st.image(message["image_url"], caption="Generated by Pro AI", use_container_width=True)
+        if "image_url" in message: st.image(message["image_url"], use_container_width=True)
 
-# --- 6. Input Handler with Dynamic Live Model Fetching ---
+# 6. Logic with Language Perfection Prompt
 if prompt := st.chat_input("Ask ProAi..."):
     st.session_state.messages.append({"role": "user", "content": prompt})
-    with st.chat_message("user", avatar="👤"):
-        st.markdown(prompt)
-
+    with st.chat_message("user", avatar="👤"): st.markdown(prompt)
+    
     with st.chat_message("assistant", avatar="⚡"):
-        prompt_lower = prompt.lower()
-
-        # Image Generation Route
-        if any(kw in prompt_lower for kw in ["image", "photo", "pic", "picture", "draw", "banao"]):
-            with st.spinner("🎨 Pro AI Image Render kar raha hai..."):
-                try:
-                    encoded_prompt = urllib.parse.quote(prompt)
-                    image_url = f"https://image.pollinations.ai/prompt/{encoded_prompt}?width=1024&height=1024&seed=42&nologo=true"
-                    msg_text = f"✨ **Aapki AI Image ready hai:**"
-                    st.markdown(msg_text)
-                    st.image(image_url, caption="Generated by Pro AI", use_container_width=True)
-
-                    st.session_state.messages.append({
-                        "role": "assistant",
-                        "content": msg_text,
-                        "image_url": image_url
-                    })
-                except Exception as e:
-                    st.error(f"Image Error: {str(e)}")
-
-        # Live Dynamic LLM Route
+        if any(kw in prompt.lower() for kw in ["image", "photo", "pic", "banao"]):
+            encoded = urllib.parse.quote(prompt)
+            url = f"https://image.pollinations.ai/prompt/{encoded}?width=1024&height=1024&nologo=true"
+            st.image(url, use_container_width=True)
+            st.session_state.messages.append({"role": "assistant", "content": "Ye rahi image:", "image_url": url})
         else:
-            with st.spinner("Pro AI reply taiyar kar raha hai..."):
-                clean_api_msgs = [
-                    {"role": "system", "content": "You are 'Pro AI', an ultra-intelligent AI assistant created by Kishan Singh. Support Hindi, English, and all global languages fluently. Provide accurate, direct, and helpful answers."}
-                ]
+            with st.spinner("Processing..."):
+                # Professional Language Prompt
+                system_prompt = (
+                    "You are Pro AI, a precise expert linguist. "
+                    "When answering in Hindi or English, ensure perfect grammar, formal yet natural tone, and high cultural accuracy. "
+                    "Do not use casual slang. For tables or lists, keep text concise so it fits on mobile devices."
+                )
                 
-                for m in st.session_state.messages[-6:]:
-                    if "content" in m and m["content"]:
-                        clean_api_msgs.append({
-                            "role": m["role"],
-                            "content": m["content"]
-                        })
-
-                response_text = None
-                last_err = ""
-
+                msgs = [{"role": "system", "content": system_prompt}] + [{"role": m["role"], "content": m["content"]} for m in st.session_state.messages[-5:]]
+                
                 try:
-                    # Dynamically get 100% active models from Groq API
-                    live_models = [
-                        m.id for m in client.models.list().data 
-                        if "whisper" not in m.id and "guard" not in m.id and "distil" not in m.id
-                    ]
-                except Exception:
-                    live_models = ["llama-3.3-70b-versatile", "llama3-70b-8192"]
-
-                for model_id in live_models:
-                    try:
-                        chat_completion = client.chat.completions.create(
-                            messages=clean_api_msgs,
-                            model=model_id,
-                            temperature=0.6,
-                            max_tokens=1024,
-                        )
-                        response_text = chat_completion.choices[0].message.content
-                        if response_text:
-                            break
-                    except Exception as err:
-                        last_err = str(err)
-                        continue
-
-                if response_text:
-                    st.markdown(response_text)
-                    st.session_state.messages.append({"role": "assistant", "content": response_text})
-                else:
-                    st.error(f"⚠️ Connection Error: {last_err}")
+                    # Fetching models dynamically
+                    models = [m.id for m in client.models.list().data if "whisper" not in m.id]
+                    response = client.chat.completions.create(messages=msgs, model=models[0], temperature=0.5).choices[0].message.content
+                    st.markdown(response)
+                    st.session_state.messages.append({"role": "assistant", "content": response})
+                except Exception as e:
+                    st.error(f"Error: {e}")
                     
