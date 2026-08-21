@@ -1,75 +1,193 @@
 import os
-import time
 import urllib.parse
 import streamlit as st
 from groq import Groq
 
 # 1. Page Configuration
-st.set_page_config(page_title="Pro AI", page_icon="⚡", layout="centered", initial_sidebar_state="collapsed")
+st.set_page_config(
+    page_title="Pro AI",
+    page_icon="⚡",
+    layout="centered",
+    initial_sidebar_state="collapsed",
+)
 
-# 2. CSS - Ultra Clean Interface
-st.markdown("""
+# 2. Ultra-Clear High-Contrast CSS
+st.markdown(
+    """
     <style>
-        [data-testid="stSidebar"], footer, header, #MainMenu { display: none !important; }
-        .stApp { background-color: #0d1117 !important; color: #ffffff !important; }
-        .block-container { padding-top: 1rem !important; padding-bottom: 5rem !important; max-width: 800px !important; }
-        .pro-header { background: #161b22; padding: 15px; border-radius: 12px; text-align: center; margin-bottom: 20px; border: 1px solid #30363d; }
-        [data-testid="stChatMessage"] { background-color: #161b22 !important; border: 1px solid #30363d !important; border-radius: 12px !important; color: white !important; }
-        .stChatInput > div { border-radius: 12px !important; background-color: #161b22 !important; border: 1px solid #30363d !important; }
-        .stChatInput textarea { color: white !important; }
+        [data-testid="stSidebar"], [data-testid="collapsedControl"], footer, header, #MainMenu {
+            display: none !important;
+        }
+
+        .stApp {
+            background-color: #0d1117 !important;
+            color: #ffffff !important;
+        }
+
+        .block-container {
+            padding-top: 1.5rem !important;
+            padding-bottom: 5rem !important;
+            max-width: 800px !important;
+        }
+        
+        .pro-header-card {
+            background: #161b22;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .pro-title {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: #ffffff !important;
+            margin-bottom: 4px;
+        }
+
+        .security-badge {
+            font-size: 0.75rem;
+            color: #10a37f !important;
+            background-color: rgba(16, 163, 127, 0.15);
+            padding: 4px 12px;
+            border-radius: 20px;
+            border: 1px solid rgba(16, 163, 127, 0.3);
+            display: inline-block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .pro-subtitle {
+            color: #c9d1d9 !important;
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-top: 4px;
+        }
+
+        /* Bright Text for Chat Messages */
+        [data-testid="stChatMessage"] {
+            background-color: #161b22 !important;
+            border-radius: 14px !important;
+            border: 1px solid rgba(255, 255, 255, 0.12) !important;
+            margin-bottom: 10px !important;
+            padding: 12px 16px !important;
+        }
+
+        [data-testid="stChatMessage"] p, [data-testid="stChatMessage"] div, [data-testid="stChatMessage"] span {
+            color: #ffffff !important;
+            font-size: 1.05rem !important;
+            line-height: 1.6 !important;
+        }
+
+        /* Input Styling */
+        .stChatInput > div {
+            border-radius: 14px !important;
+            border: 1px solid rgba(255, 255, 255, 0.25) !important;
+            background-color: #161b22 !important;
+        }
+
+        .stChatInput textarea {
+            color: #ffffff !important;
+            font-size: 1rem !important;
+        }
+
+        .stChatInput textarea::placeholder {
+            color: #8b949e !important;
+        }
     </style>
-""", unsafe_allow_html=True)
+    """,
+    unsafe_allow_html=True,
+)
 
-# 3. Header
-st.markdown('<div class="pro-header"><h2 style="color:white">⚡ Pro AI</h2><p style="color:#8b949e">Stable Engine: Online</p></div>', unsafe_allow_html=True)
+# 3. Header Card
+st.markdown(
+    """
+    <div class="pro-header-card">
+        <div class="security-badge">🔏 Anti-Abuse Engine Active</div>
+        <div class="pro-title">⚡ Pro AI</div>
+        <div class="pro-subtitle">Ask ProAi</div>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
 
-# 4. API Client
+# --- 4. API Client ---
 GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
+
+if not GROQ_API_KEY:
+    st.error("❌ GROQ_API_KEY nahi mili! Streamlit Secrets me add karein.")
+    st.stop()
+
 client = Groq(api_key=GROQ_API_KEY)
 
-# 5. Fallback Logic with Retry
-def get_ai_response(messages):
-    models = ["llama-3.1-8b-instant", "llama3-70b-8192", "gemma2-9b-it"]
-    for model in models:
-        # Try each model 2 times
-        for attempt in range(2):
-            try:
-                chat = client.chat.completions.create(
-                    messages=messages, 
-                    model=model, 
-                    temperature=0.7, 
-                    max_tokens=1024
-                )
-                return chat.choices[0].message.content
-            except Exception:
-                time.sleep(1) # Wait 1 sec before retrying
-                continue 
-    return "💡 Engine busy hai, kripya 5 seconds baad phir se message bhejein."
-
-# 6. Session Logic
+# --- 5. Session Setup ---
 if "messages" not in st.session_state:
-    st.session_state.messages = [{"role": "assistant", "content": "Namaste! Main Pro AI hu. Main aapki kya madad kar sakta hu?"}]
+    st.session_state.messages = [
+        {"role": "assistant", "content": "Namaste! Main **Pro AI** hu. Main aapki kya madad kar sakta hu?"}
+    ]
 
-for msg in st.session_state.messages:
-    avatar = "⚡" if msg["role"] == "assistant" else "👤"
-    with st.chat_message(msg["role"], avatar=avatar):
-        st.markdown(msg["content"])
-        if "image_url" in msg: st.image(msg["image_url"], use_column_width=True)
+# Render Messages
+for message in st.session_state.messages:
+    avatar_icon = "⚡" if message["role"] == "assistant" else "👤"
+    with st.chat_message(message["role"], avatar=avatar_icon):
+        st.markdown(message["content"])
+        if "image_url" in message:
+            st.image(message["image_url"], caption="Generated by Pro AI", use_container_width=True)
 
-# 7. Chat Input
+# --- 6. Input Handler & Clean API Call ---
 if prompt := st.chat_input("Ask ProAi..."):
     st.session_state.messages.append({"role": "user", "content": prompt})
-    with st.chat_message("user", avatar="👤"): st.markdown(prompt)
-    
+    with st.chat_message("user", avatar="👤"):
+        st.markdown(prompt)
+
     with st.chat_message("assistant", avatar="⚡"):
-        if any(kw in prompt.lower() for kw in ["image", "photo", "pic", "banao"]):
-            encoded = urllib.parse.quote(prompt)
-            url = f"https://image.pollinations.ai/prompt/{encoded}?width=1024&height=1024&nologo=true"
-            st.image(url, use_column_width=True)
-            st.session_state.messages.append({"role": "assistant", "content": "Ye rahi image:", "image_url": url})
+        prompt_lower = prompt.lower()
+
+        # Image Generation Condition
+        if any(kw in prompt_lower for kw in ["image", "photo", "pic", "picture", "draw", "banao"]):
+            with st.spinner("🎨 Pro AI Image Render kar raha hai..."):
+                try:
+                    encoded_prompt = urllib.parse.quote(prompt)
+                    image_url = f"https://image.pollinations.ai/prompt/{encoded_prompt}?width=1024&height=1024&seed=42&nologo=true"
+                    msg_text = f"✨ **Aapki AI Image ready hai:**"
+                    st.markdown(msg_text)
+                    st.image(image_url, caption="Generated by Pro AI", use_container_width=True)
+
+                    st.session_state.messages.append({
+                        "role": "assistant",
+                        "content": msg_text,
+                        "image_url": image_url
+                    })
+                except Exception as e:
+                    st.error(f"Image Error: {str(e)}")
+
+        # Normal Text Response
         else:
-            with st.spinner("Processing..."):
-                response = get_ai_response([{"role": m["role"], "content": m["content"]} for m in st.session_state.messages])
-                st.markdown(response)
-                st.session_state.messages.append({"role": "assistant", "content": response})
+            with st.spinner("Pro AI reply taiyar kar raha hai..."):
+                # Clean prompt payloads (No invalid state injection)
+                clean_api_msgs = [
+                    {"role": "system", "content": "You are 'Pro AI', an ultra-intelligent assistant. Answer directly, clearly, and support Hindi/English fluently."}
+                ]
                 
+                for m in st.session_state.messages[-6:]:  # Last 6 clean messages for context
+                    if "content" in m and m["content"]:
+                        clean_api_msgs.append({
+                            "role": m["role"],
+                            "content": m["content"]
+                        })
+
+                try:
+                    chat_completion = client.chat.completions.create(
+                        messages=clean_api_msgs,
+                        model="llama-3.1-8b-instant",
+                        temperature=0.6,
+                        max_tokens=1024,
+                    )
+                    response_text = chat_completion.choices[0].message.content
+                    st.markdown(response_text)
+                    st.session_state.messages.append({"role": "assistant", "content": response_text})
+
+                except Exception as e:
+                    st.error(f"⚠️ Groq API Error: {str(e)}")
+                    
